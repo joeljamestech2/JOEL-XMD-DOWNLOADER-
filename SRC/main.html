@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JOEL XMD DOWNLOADER WEB</title>
+
+  <!-- Styles and Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: linear-gradient(135deg, #00d4ff, #7e00ff);
+      --bg: #01010a;
+      --glass: rgba(255, 255, 255, 0.05);
+      --text: #ffffff;
+      --muted: #bbbbbb;
+      --highlight: #00ffff;
+      --radius: 16px;
+      --blur: 16px;
+      --transition: 0.4s ease;
+      --glow: 0 0 25px rgba(0, 212, 255, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .mobile-header {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--glass);
+      padding: 1rem;
+      box-shadow: var(--glow);
+      backdrop-filter: blur(var(--blur));
+    }
+
+    .menu-toggle {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--highlight);
+      cursor: pointer;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: var(--glass);
+      padding: 1.5rem 1rem;
+      backdrop-filter: blur(var(--blur));
+      box-shadow: var(--glow);
+      overflow-y: auto;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 0.8rem;
+      margin-bottom: 0.5rem;
+      border-radius: var(--radius);
+      transition: var(--transition);
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: var(--highlight);
+      color: #000;
+    }
+
+    .nav-item i {
+      margin-right: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .main {
+      margin-left: 250px;
+      padding: 2rem;
+      flex: 1;
+    }
+
+    .dashboard h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .card {
+      background: var(--glass);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      backdrop-filter: blur(var(--blur));
+      box-shadow: var(--glow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .card p {
+      font-size: 1.8rem;
+      margin: 0;
+    }
+
+    .icon {
+      font-size: 2rem;
+      color: var(--highlight);
+    }
+
+    .section-title {
+      margin-top: 2rem;
+      font-weight: bold;
+      font-size: 1.3rem;
+      text-transform: uppercase;
+      color: var(--highlight);
+    }
+
+    .terms {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 1rem;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-header {
+        display: flex;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        z-index: 999;
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+        margin-top: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="mobile-header">
+    <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+    <h1>JOEL XMD WEB</h1>
+  </header>
+
+  <aside class="sidebar" id="sidebar">
+    <a href="/" class="nav-item active"><i class="fas fa-home"></i>Dashboard</a>
+    <a href="/youtube" class="nav-item"><i class="fab fa-youtube"></i>YouTube</a>
+    <a href="/tiktok" class="nav-item"><i class="fab fa-tiktok"></i>TikTok</a>
+    <a href="/instagram" class="nav-item"><i class="fab fa-instagram"></i>Insta</a>
+    <a href="/xnx" class="nav-item"><i class="fas fa-user-secret"></i>XnX</a>
+    <a href="/xvideos" class="nav-item"><i class="fas fa-video"></i>Xvideos</a>
+    <a href="/facebook" class="nav-item"><i class="fab fa-facebook"></i>Facebook</a>
+    <a href="/capcut" class="nav-item"><i class="fas fa-cut"></i>CapCut</a>
+    <a href="/mediafire" class="nav-item"><i class="fas fa-file-archive"></i>MediaFire</a>
+    <a href="/snapchat" class="nav-item"><i class="fab fa-snapchat-ghost"></i>Snapchat</a>
+    <a href="/xtwitter" class="nav-item"><i class="fab fa-twitter"></i>X Twitter</a>
+    <a href="/gdrive" class="nav-item"><i class="fab fa-google-drive"></i>Google Drive</a>
+    <a href="/support" class="nav-item"><i class="fas fa-headset"></i>Support</a>
+    <a href="/report" class="nav-item"><i class="fas fa-bug"></i>Report Error</a>
+  </aside>
+
+  <main class="main">
+    <div class="dashboard">
+      <h1>DASHBOARD</h1>
+
+      <div class="card">
+        <div>
+          <h2>Total Visitors</h2>
+          <p id="visitorCount">Loading...</p>
+        </div>
+        <i class="fas fa-eye icon"></i>
+      </div>
+
+      <div class="card">
+        <div>
+          <h2>Battery Level</h2>
+          <p id="batteryLevel">Loading...</p>
+        </div>
+        <i class="fas fa-battery-half icon"></i>
+      </div>
+
+      <div class="card">
+        <div>
+          <h2>Your IP Address</h2>
+          <p id="ipAddress">Loading...</p>
+        </div>
+        <i class="fas fa-wifi icon"></i>
+      </div>
+
+      <div class="section-title">Terms of Service</div>
+      <div class="terms">
+        1. The JOEL XMD Downloader Web is for personal and educational use only.<br/>
+        2. Do not use the tools provided here to download copyrighted or adult content without proper rights.<br/>
+        3. You must not abuse the system (e.g., spamming requests, botting, or bypassing limits).<br/>
+        4. Any illegal or unethical use of this service will result in a permanent IP ban.<br/>
+        5. Sharing API endpoints, if provided, must be done responsibly and not sold or redistributed.<br/>
+        6. We are not responsible for misuse or the files you download using this service.<br/>
+        7. Report any bugs or issues via the Support or Report Error section.<br/>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    Powered by <strong>joeljamestech</strong>
+  </footer>
+
+  <script>
+    // Sidebar toggle for mobile
+    const toggleBtn = document.querySelector(".menu-toggle");
+    const sidebar = document.getElementById("sidebar");
+
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("show");
+    });
+
+    // Highlight active nav item
+    document.querySelectorAll(".nav-item").forEach(item => {
+      item.addEventListener("click", () => {
+        document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
+        item.classList.add("active");
+        sidebar.classList.remove("show"); // auto-close sidebar on mobile
+      });
+    });
+
+    // Visitor counter using localStorage
+    const visitorEl = document.getElementById("visitorCount");
+    let count = localStorage.getItem("visitorCount");
+    count = count ? parseInt(count) + 1 : 1;
+    localStorage.setItem("visitorCount", count);
+    visitorEl.textContent = count.toLocaleString();
+
+    // Battery level
+    navigator.getBattery?.().then(battery => {
+      document.getElementById("batteryLevel").textContent = `${Math.round(battery.level * 100)}%`;
+    }).catch(() => {
+      document.getElementById("batteryLevel").textContent = "Unavailable";
+    });
+
+    // IP address
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("ipAddress").textContent = data.ip;
+      })
+      .catch(() => {
+        document.getElementById("ipAddress").textContent = "Unavailable";
+      });
+  </script>
+</body>
+</html>
