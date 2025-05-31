@@ -3,123 +3,297 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>YouTube Downloader</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet" />
+  <title>JOEL XMD DOWNLOADER</title>
+
+  <!-- Fonts and Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- Styles -->
   <style>
+    :root {
+      --primary: linear-gradient(135deg, #00d4ff, #7e00ff);
+      --bg: #000000;
+      --glass: rgba(255, 255, 255, 0.05);
+      --text: #ffffff;
+      --muted: #aaaaaa;
+      --highlight: #00ffff;
+      --radius: 16px;
+      --blur: 12px;
+      --transition: 0.3s ease;
+      --glow: 0 0 15px rgba(0, 212, 255, 0.3);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      background: #01010a;
       font-family: 'JetBrains Mono', monospace;
-      color: white;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background: var(--glass);
+      backdrop-filter: blur(var(--blur));
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      background: var(--primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .status {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--highlight);
+      font-weight: 600;
+    }
+
+    main {
       padding: 2rem;
+      text-align: center;
     }
+
+    .owner-img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: 2px solid var(--highlight);
+      box-shadow: var(--glow);
+      margin: 1rem auto;
+    }
+
     .search-box {
-      margin-bottom: 2rem;
-    }
-    .search-box input {
-      padding: 0.5rem;
-      width: 70%;
-      font-size: 1rem;
-    }
-    .search-box button {
-      padding: 0.6rem;
-      background: #00d4ff;
-      border: none;
-      cursor: pointer;
-      color: #000;
-      font-weight: bold;
-    }
-    .video {
-      border: 1px solid #444;
-      border-radius: 10px;
-      padding: 1rem;
-      margin-bottom: 1rem;
+      margin-top: 2rem;
       display: flex;
       gap: 1rem;
-      background: rgba(255,255,255,0.05);
+      justify-content: center;
+      flex-wrap: wrap;
     }
-    .video img {
-      width: 160px;
-      border-radius: 8px;
-    }
-    .info h3 {
-      margin: 0;
-    }
-    .info button {
-      margin-top: 0.5rem;
-      background: #7e00ff;
-      color: white;
+
+    .search-box input {
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border-radius: var(--radius);
+      background: var(--glass);
+      color: var(--text);
       border: none;
-      padding: 0.4rem 1rem;
+      width: 300px;
+      max-width: 100%;
+    }
+
+    .search-box button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0.75rem 1.2rem;
+      border-radius: var(--radius);
+      font-weight: bold;
       cursor: pointer;
-      margin-right: 0.5rem;
+      box-shadow: var(--glow);
+    }
+
+    #resultCard {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      border: 1px solid var(--highlight);
+      border-radius: var(--radius);
+      display: none;
+      background: var(--glass);
+      backdrop-filter: blur(var(--blur));
+    }
+
+    #thumbnail {
+      width: 100%;
+      max-width: 320px;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+    }
+
+    .btns {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .btns button {
+      padding: 0.7rem 1.4rem;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      background: var(--primary);
+      color: white;
+      font-weight: bold;
+    }
+
+    .error, .success {
+      color: var(--highlight);
+      margin-top: 1rem;
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: var(--muted);
     }
   </style>
 </head>
+
 <body>
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Search YouTube videos..." />
-    <button onclick="searchYouTube()">Search</button>
-  </div>
-  <div id="results"></div>
+  <header>
+    <h1>JOEL XMD DOWNLOADER</h1>
+    <div class="status">
+      <div class="status-item"><i class="fas fa-bolt"></i> <span id="battery">--%</span></div>
+      <div class="status-item"><i class="fas fa-wifi"></i> <span id="ip">Loading...</span></div>
+    </div>
+  </header>
 
+  <main>
+    <h2>Welcome to JOEL XMD Downloader</h2>
+    <p>Owned by <strong>+255781144539</strong></p>
+    <img src="owner.jpg" alt="Owner Image" class="owner-img"/>
+
+    <div class="search-box">
+      <input type="text" id="searchQuery" placeholder="Search YouTube video..." />
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <div id="loadingIndicator" class="muted" style="margin-top:1rem;display:none;">Searching...</div>
+    <div id="searchError" class="error"></div>
+
+    <div id="resultCard">
+      <img id="thumbnail" src="" alt="Thumbnail"/>
+      <h3 id="videoTitle">Video Title</h3>
+      <p>Channel: <span id="channelTitle"></span></p>
+      <p>Duration: <span id="videoDuration"></span></p>
+      <audio id="previewAudio" controls style="margin-top:1rem;"></audio>
+      <div class="btns">
+        <button id="downloadMp3Btn">Download MP3</button>
+        <button id="downloadMp4Btn">Download MP4</button>
+      </div>
+      <div id="downloadSuccess" class="success">Download Started!</div>
+      <div id="downloadError" class="error">Download Failed</div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 JOEL XMD Downloader. All rights reserved.
+  </footer>
+
+  <!-- Status + Search/Download Scripts -->
   <script>
-    async function searchYouTube() {
-      const query = document.getElementById('searchInput').value;
-      if (!query) return alert('Enter a search query');
-
-      const response = await fetch(`https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      const videos = data.slice(0, 10);
-
-      const container = document.getElementById('results');
-      container.innerHTML = '';
-
-      videos.forEach(video => {
-        const videoDiv = document.createElement('div');
-        videoDiv.className = 'video';
-        videoDiv.innerHTML = `
-          <img src="${video.thumbnail}" alt="Thumbnail">
-          <div class="info">
-            <h3>${video.title}</h3>
-            <p>${video.author} | ${video.duration} | ${video.views.toLocaleString()} views</p>
-            <p>Published: ${video.published}</p>
-            <button onclick="downloadVideo('${video.url}')">Download Video</button>
-            <button onclick="downloadAudio('${video.title}')">Download Audio</button>
-          </div>
-        `;
-        container.appendChild(videoDiv);
+    // IP
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('ip').textContent = data.ip;
+      }).catch(() => {
+        document.getElementById('ip').textContent = 'Unavailable';
       });
-    }
 
-    async function downloadVideo(videoUrl) {
-      const apiUrl = `https://apis.davidcyriltech.my.id/download/ytmp4?url=${encodeURIComponent(videoUrl)}`;
-      try {
-        const res = await fetch(apiUrl);
-        const json = await res.json();
-        if (json.success) {
-          window.open(json.result.download_url, '_blank');
-        } else {
-          alert('Failed to get video download link.');
-        }
-      } catch (e) {
-        alert('Download failed.');
+    // Battery
+    navigator.getBattery().then(battery => {
+      function updateBatteryStatus() {
+        document.getElementById('battery').textContent = Math.round(battery.level * 100) + '%';
       }
-    }
+      updateBatteryStatus();
+      battery.addEventListener('levelchange', updateBatteryStatus);
+    });
 
-    async function downloadAudio(title) {
-      const apiUrl = `https://my-rest-apis-six.vercel.app/play?query=${encodeURIComponent(title)}`;
+    // Elements
+    const searchBtn = document.getElementById("searchBtn");
+    const searchQuery = document.getElementById("searchQuery");
+    const resultCard = document.getElementById("resultCard");
+    const loadingIndicator = document.getElementById("loadingIndicator");
+    const searchError = document.getElementById("searchError");
+    const videoTitle = document.getElementById("videoTitle");
+    const channelTitle = document.getElementById("channelTitle");
+    const videoDuration = document.getElementById("videoDuration");
+    const thumbnail = document.getElementById("thumbnail");
+    const previewAudio = document.getElementById("previewAudio");
+    const downloadMp3Btn = document.getElementById("downloadMp3Btn");
+    const downloadMp4Btn = document.getElementById("downloadMp4Btn");
+    const downloadSuccess = document.getElementById("downloadSuccess");
+    const downloadError = document.getElementById("downloadError");
+
+    searchBtn.addEventListener("click", async () => {
+      const query = searchQuery.value.trim();
+      if (!query) return;
+
+      resultCard.style.display = "none";
+      searchError.style.display = "none";
+      downloadSuccess.style.display = "none";
+      downloadError.style.display = "none";
+      loadingIndicator.style.display = "block";
+
       try {
-        const res = await fetch(apiUrl);
-        const json = await res.json();
-        if (json.status === 'success') {
-          window.open(json.download_url, '_blank');
-        } else {
-          alert('Failed to get audio download link.');
+        const res = await fetch(`https://joeljamestech-api.vercel.app/api/yts?query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        if (!data || !data.result || data.result.length === 0) {
+          searchError.innerText = "No results found.";
+          searchError.style.display = "block";
+          loadingIndicator.style.display = "none";
+          return;
         }
-      } catch (e) {
-        alert('Audio download failed.');
+
+        const video = data.result[0];
+        videoTitle.innerText = video.title;
+        channelTitle.innerText = video.channel;
+        videoDuration.innerText = video.duration;
+        thumbnail.src = video.thumbnail;
+        previewAudio.src = `https://apis.davidcyriltech.my.id/download/ytmp3?url=${video.url}`;
+
+        resultCard.style.display = "block";
+      } catch (err) {
+        searchError.innerText = "Something went wrong. Try again.";
+        searchError.style.display = "block";
+      } finally {
+        loadingIndicator.style.display = "none";
       }
-    }
+    });
+
+    downloadMp3Btn.addEventListener("click", () => {
+      const url = previewAudio.src;
+      if (!url) return;
+      window.open(url, "_blank");
+      downloadSuccess.style.display = "block";
+    });
+
+    downloadMp4Btn.addEventListener("click", () => {
+      const videoUrl = previewAudio.src.replace("ytmp3", "ytmp4");
+      if (!videoUrl) return;
+      window.open(videoUrl, "_blank");
+      downloadSuccess.style.display = "block";
+    });
   </script>
 </body>
 </html>
