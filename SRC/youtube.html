@@ -3,138 +3,155 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>JOEL XMD YouTube Downloader</title>
+  <title>Joel XMD YouTube Downloader</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet" />
   <style>
     body {
-      background-color: #0d0d0d;
       font-family: 'JetBrains Mono', monospace;
+      background: #0a0a0a;
       color: #fff;
-      text-align: center;
       padding: 2rem;
+      text-align: center;
     }
-    h1 {
-      font-family: 'Orbitron', sans-serif;
-      color: #00d9ff;
-    }
+
     input {
       padding: 0.6rem;
       width: 90%;
       max-width: 500px;
       border-radius: 10px;
       border: none;
-      outline: none;
-      font-size: 1rem;
       background: #111;
       color: #fff;
+      font-family: inherit;
     }
+
     button {
+      margin-top: 1rem;
       padding: 0.6rem 1.2rem;
       background: #00d9ff;
       color: #000;
       font-weight: bold;
       border: none;
-      border-radius: 10px;
-      margin-top: 1rem;
+      border-radius: 8px;
       cursor: pointer;
     }
+
     .results {
       margin-top: 2rem;
-      display: grid;
-      gap: 1.5rem;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      align-items: center;
     }
+
     .card {
-      background: #1a1a1a;
-      padding: 1rem;
+      background: #111;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,217,255,0.3);
+      padding: 1rem;
+      max-width: 600px;
+      box-shadow: 0 0 15px rgba(0, 217, 255, 0.2);
+      text-align: left;
     }
+
     .card img {
       width: 100%;
-      border-radius: 10px;
+      border-radius: 8px;
     }
-    .card h3 {
-      margin: 0.5rem 0;
-      font-size: 1rem;
+
+    .meta {
+      margin-top: 0.5rem;
     }
-    .card p {
-      font-size: 0.9rem;
+
+    .meta p {
+      margin: 4px 0;
       color: #bbb;
     }
-    .card .actions {
-      margin-top: 0.8rem;
+
+    .actions {
+      margin-top: 1rem;
       display: flex;
-      justify-content: space-around;
+      gap: 1rem;
       flex-wrap: wrap;
-      gap: 0.5rem;
     }
-    .card .actions a {
+
+    .actions button {
       background: #00d9ff;
+      border: none;
+      padding: 0.5rem 1rem;
       color: #000;
-      padding: 0.4rem 0.8rem;
-      border-radius: 8px;
       font-weight: bold;
-      text-decoration: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .error {
+      margin-top: 1rem;
+      color: red;
     }
   </style>
 </head>
 <body>
 
-  <h1>JOEL XMD YouTube Downloader</h1>
-  <input type="text" id="query" placeholder="Search for a video (e.g., Unconditionally)">
-  <br>
-  <button onclick="searchYouTube()">Search</button>
+  <h1>🎧 Joel XMD YouTube Downloader</h1>
+  <input id="query" placeholder="Search for a YouTube video..." />
+  <br />
+  <button onclick="searchVideos()">Search</button>
+  <div class="error" id="error"></div>
 
   <div class="results" id="results"></div>
 
   <script>
-    async function searchYouTube() {
+    async function searchVideos() {
       const query = document.getElementById("query").value.trim();
-      const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = '';
+      const results = document.getElementById("results");
+      const error = document.getElementById("error");
+
+      results.innerHTML = '';
+      error.textContent = '';
 
       if (!query) {
-        alert("❌ Please enter a search query.");
+        error.textContent = '❌ Please enter a search term.';
         return;
       }
 
-      const proxy = "https://corsproxy.io/?";
-      const searchUrl = `${proxy}https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
-
       try {
-        const res = await fetch(searchUrl);
+        const api = `https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
+        const res = await fetch(api);
         const json = await res.json();
 
-        if (json.status !== "success" || !json.results.length) {
-          resultsDiv.innerHTML = "<p>No results found.</p>";
+        if (!json.results || !json.results.length) {
+          error.textContent = '❌ No results found.';
           return;
         }
 
-        json.results.slice(0, 10).forEach(video => {
-          const encodedUrl = encodeURIComponent(video.url);
-          const audioApi = `${proxy}https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodedUrl}`;
-          const videoApi = `${proxy}https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodedUrl}`;
+        json.results.forEach(video => {
+          const encodedURL = encodeURIComponent(video.url);
+          const mp3 = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodedURL}`)}`;
+          const mp4 = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodedURL}`)}`;
 
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <img src="${video.thumbnail}" alt="${video.title}">
-            <h3>${video.title}</h3>
-            <p>⏱ ${video.duration} • 👁️ ${video.views.toLocaleString()}<br>👤 ${video.author} • 🗓 ${video.published}</p>
-            <div class="actions">
-              <a href="${audioApi}" target="_blank">🎵 Download MP3</a>
-              <a href="${videoApi}" target="_blank">📹 Download MP4</a>
+          const card = `
+            <div class="card">
+              <img src="${video.thumbnail}" alt="Thumbnail" />
+              <div class="meta">
+                <h3>${video.title}</h3>
+                <p><strong>Author:</strong> ${video.author}</p>
+                <p><strong>Duration:</strong> ${video.duration}</p>
+                <p><strong>Published:</strong> ${video.published || 'N/A'}</p>
+                <p><strong>Views:</strong> ${video.views.toLocaleString()}</p>
+              </div>
+              <div class="actions">
+                <button onclick="window.open('${mp3}', '_blank')">🎵 Download MP3</button>
+                <button onclick="window.open('${mp4}', '_blank')">📹 Download MP4</button>
+              </div>
             </div>
           `;
-          resultsDiv.appendChild(card);
+          results.innerHTML += card;
         });
-      } catch (error) {
-        console.error(error);
-        resultsDiv.innerHTML = `<p style="color: red;">❌ Failed to fetch results.</p>`;
+      } catch (err) {
+        console.error(err);
+        error.textContent = '❌ Failed to fetch videos.';
       }
     }
   </script>
-
 </body>
 </html>
