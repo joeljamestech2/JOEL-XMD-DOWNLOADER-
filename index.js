@@ -67,6 +67,31 @@ async function server(req,res) {
         await serve_html(res, 'instagram.html');
       }
       break;
+      case '/xnxx':
+      {
+        await serve_html(res, 'xnx.html');
+      }
+      break;
+      case '/app':
+      {
+        await serve_html(res, 'app.html');
+      }
+      break;
+      case '/info':
+      {
+        await serve_html(res, 'info.html');
+      }
+      break;
+      case '/instagram':
+      {
+        await serve_html(res, 'instagram.html');
+      }
+      break;
+      case '/instagram':
+      {
+        await serve_html(res, 'instagram.html');
+      }
+      break;
     case '/tiktok':
       {
         await serve_html(res, 'tiktok.html');
