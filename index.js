@@ -82,9 +82,9 @@ async function server(req,res) {
         await serve_html(res, 'info.html');
       }
       break;
-      case '/instagram':
+      case '/xvideo':
       {
-        await serve_html(res, 'instagram.html');
+        await serve_html(res, 'xvideo.html');
       }
       break;
       case '/instagram':
