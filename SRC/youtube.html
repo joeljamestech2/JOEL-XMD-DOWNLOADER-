@@ -12,37 +12,32 @@
       --highlight: #ff0055;
       --radius: 12px;
     }
-
     body {
+      margin: 0;
+      padding: 2rem;
       font-family: 'JetBrains Mono', monospace;
       background: var(--bg);
       color: var(--text);
-      margin: 0;
-      padding: 2rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
     }
-
     h1 {
       font-family: 'Orbitron', sans-serif;
       color: var(--highlight);
-      text-align: center;
     }
-
     input {
+      margin-top: 1rem;
       padding: 0.7rem;
       width: 100%;
       max-width: 600px;
-      border-radius: var(--radius);
       border: none;
-      outline: none;
+      border-radius: var(--radius);
       background: #111;
       color: var(--text);
-      margin-top: 1rem;
+      outline: none;
     }
-
     button {
       margin-top: 1rem;
       padding: 0.7rem 1.5rem;
@@ -53,7 +48,10 @@
       font-weight: bold;
       cursor: pointer;
     }
-
+    .error {
+      margin-top: 1rem;
+      color: red;
+    }
     .result {
       margin-top: 2rem;
       background: #111;
@@ -63,118 +61,92 @@
       width: 100%;
       box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
     }
-
     .thumbnail {
       width: 100%;
       border-radius: var(--radius);
     }
-
     .info {
       margin-top: 1rem;
     }
-
     .info h2 {
       color: var(--highlight);
-      margin: 0.5rem 0;
+      margin-bottom: 0.5rem;
     }
-
     .downloads {
       margin-top: 1rem;
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
     }
-
     .downloads a {
       background: var(--highlight);
       color: #000;
       padding: 0.5rem 1rem;
       border-radius: var(--radius);
-      text-decoration: none;
       font-weight: bold;
-    }
-
-    .error {
-      color: red;
-      margin-top: 1rem;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
 
   <h1>JOEL XMD YouTube Downloader</h1>
-  <input id="searchQuery" type="text" placeholder="Enter video title (e.g., Unconditionally)" />
-  <button onclick="searchYouTube()">Search</button>
+  <input id="searchQuery" type="text" placeholder="Enter YouTube video title..." />
+  <button onclick="searchYouTube()">🔍 Search & Download</button>
   <div class="error" id="errorMsg"></div>
-
   <div id="resultContainer"></div>
 
   <script>
     async function searchYouTube() {
       const query = document.getElementById("searchQuery").value.trim();
-      const resultContainer = document.getElementById("resultContainer");
       const errorMsg = document.getElementById("errorMsg");
-      resultContainer.innerHTML = '';
+      const resultContainer = document.getElementById("resultContainer");
       errorMsg.textContent = '';
+      resultContainer.innerHTML = '';
 
       if (!query) {
-        errorMsg.textContent = "❌ Please enter a search keyword.";
+        errorMsg.textContent = "❌ Please enter a search term.";
         return;
       }
 
       try {
-        const cors = 'https://corsproxy.io/?';
-        const searchUrl = `${cors}https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
-        const searchRes = await fetch(searchUrl);
-        const searchJson = await searchRes.json();
-
-        if (searchJson.status !== "success" || !searchJson.results.length) {
-          throw new Error("No YouTube results found.");
+        // 1. Get YouTube video via search API
+        const ytResp = await fetch(`https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`);
+        const ytJson = await ytResp.json();
+        if (ytJson.status !== "success" || !ytJson.results.length) {
+          throw new Error("No matching videos found.");
         }
+        const first = ytJson.results[0];
+        const { url: videoUrl, thumbnail, title, duration, views, author, published } = first;
 
-        const firstResult = searchJson.results[0];
-        const videoUrl = firstResult.url;
+        // 2. Fetch audio & video download URLs
+        const [audioResp, videoResp] = await Promise.all([
+          fetch(`https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodeURIComponent(videoUrl)}`),
+          fetch(`https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(videoUrl)}`)
+        ]);
+        const audioJson = await audioResp.json();
+        const videoJson = await videoResp.json();
+        if (!audioJson.data?.url || !videoJson.data?.url) throw new Error("Download not available.");
 
-        const thumb = firstResult.thumbnail;
-        const title = firstResult.title;
-        const duration = firstResult.duration;
-        const views = firstResult.views.toLocaleString();
-        const author = firstResult.author;
-        const published = firstResult.published;
-
-        const ytmp3Url = `${cors}https://apis.davidcyriltech.my.id/download/ytmp3?url=${encodeURIComponent(videoUrl)}`;
-        const ytmp4Url = `${cors}https://apis.davidcyriltech.my.id/download/ytmp4?url=${encodeURIComponent(videoUrl)}`;
-
-        // Fetch audio download info
-        const audioRes = await fetch(ytmp3Url);
-        const audioData = await audioRes.json();
-
-        // Fetch video download info
-        const videoRes = await fetch(ytmp4Url);
-        const videoData = await videoRes.json();
-
-        const audioLink = audioData.result?.download_url || '#';
-        const videoLink = videoData.result?.download_url || '#';
-
+        // 3. Render result
         resultContainer.innerHTML = `
           <div class="result">
-            <img class="thumbnail" src="${thumb}" alt="Thumbnail">
+            <img class="thumbnail" src="${thumbnail}" alt="Thumbnail" />
             <div class="info">
               <h2>${title}</h2>
               <p><strong>Author:</strong> ${author}</p>
               <p><strong>Duration:</strong> ${duration}</p>
-              <p><strong>Views:</strong> ${views}</p>
+              <p><strong>Views:</strong> ${views.toLocaleString()}</p>
               <p><strong>Published:</strong> ${published}</p>
               <div class="downloads">
-                <a href="${audioLink}" target="_blank" download>⬇ Download Audio</a>
-                <a href="${videoLink}" target="_blank" download>⬇ Download Video</a>
+                <a href="${audioJson.data.url}" download>🎧 Download Audio</a>
+                <a href="${videoJson.data.url}" download>📹 Download Video</a>
               </div>
             </div>
-          </div>
-        `;
-      } catch (err) {
-        console.error(err);
-        errorMsg.textContent = "❌ " + err.message;
+          </div>`;
+      } catch (e) {
+        console.error(e);
+        errorMsg.textContent = "❌ " + e.message;
       }
     }
   </script>
