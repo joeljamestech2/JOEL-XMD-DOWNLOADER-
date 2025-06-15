@@ -1,106 +1,221 @@
-<script>
-  async function downloadBlobFile(url, filename) {
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } catch {
-      alert("❌ Failed to download.");
-    }
-  }
-
-  async function searchYouTube() {
-    const query = document.getElementById("searchQuery").value.trim();
-    const resultContainer = document.getElementById("resultContainer");
-    const errorMsg = document.getElementById("errorMsg");
-    resultContainer.innerHTML = '';
-    errorMsg.textContent = '';
-
-    if (!query) {
-      errorMsg.textContent = "❌ Please enter a search keyword.";
-      return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JOEL XMD YouTube Downloader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --text: #ffffff;
+      --highlight: #ff0055;
+      --radius: 12px;
     }
 
-    try {
-      const cors = 'https://corsproxy.io/?';
-      const searchUrl = `${cors}https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
-      const searchRes = await fetch(searchUrl);
-      const searchJson = await searchRes.json();
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-      if (searchJson.status !== "success" || !searchJson.results.length) {
-        throw new Error("No YouTube results found.");
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--highlight);
+      text-align: center;
+    }
+
+    input {
+      padding: 0.7rem;
+      width: 100%;
+      max-width: 600px;
+      border-radius: var(--radius);
+      border: none;
+      outline: none;
+      background: #111;
+      color: var(--text);
+      margin-top: 1rem;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.7rem 1.5rem;
+      background: var(--highlight);
+      color: #000;
+      border: none;
+      border-radius: var(--radius);
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 2rem;
+      background: #111;
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      max-width: 720px;
+      width: 100%;
+      box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+    }
+
+    .thumbnail {
+      width: 100%;
+      border-radius: var(--radius);
+    }
+
+    .info {
+      margin-top: 1rem;
+    }
+
+    .info h2 {
+      color: var(--highlight);
+      margin: 0.5rem 0;
+    }
+
+    .downloads {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .downloads button {
+      background: var(--highlight);
+      color: #000;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    .error {
+      color: red;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>JOEL XMD YouTube Downloader</h1>
+  <input id="searchQuery" type="text" placeholder="Enter video title (e.g., Unconditionally)" />
+  <button onclick="searchYouTube()">Search</button>
+  <div class="error" id="errorMsg"></div>
+
+  <div id="resultContainer"></div>
+
+  <script>
+    async function downloadBlobFile(url, filename) {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch {
+        alert("❌ Failed to download.");
+      }
+    }
+
+    async function searchYouTube() {
+      const query = document.getElementById("searchQuery").value.trim();
+      const resultContainer = document.getElementById("resultContainer");
+      const errorMsg = document.getElementById("errorMsg");
+      resultContainer.innerHTML = '';
+      errorMsg.textContent = '';
+
+      if (!query) {
+        errorMsg.textContent = "❌ Please enter a search keyword.";
+        return;
       }
 
-      const firstResult = searchJson.results[0];
-      const videoUrl = firstResult.url;
+      try {
+        const cors = 'https://corsproxy.io/?';
+        const searchUrl = `${cors}https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
+        const searchRes = await fetch(searchUrl);
+        const searchJson = await searchRes.json();
 
-      const thumb = firstResult.thumbnail;
-      const title = firstResult.title;
-      const duration = firstResult.duration;
-      const views = firstResult.views.toLocaleString();
-      const author = firstResult.author;
-      const published = firstResult.published;
+        if (searchJson.status !== "success" || !searchJson.results.length) {
+          throw new Error("No YouTube results found.");
+        }
 
-      resultContainer.innerHTML = `
-        <div class="result">
-          <img class="thumbnail" src="${thumb}" alt="Thumbnail">
-          <div class="info">
-            <h2>${title}</h2>
-            <p><strong>Author:</strong> ${author}</p>
-            <p><strong>Duration:</strong> ${duration}</p>
-            <p><strong>Views:</strong> ${views}</p>
-            <p><strong>Published:</strong> ${published}</p>
-            <p id="loadingStatus" style="color: orange;">🔄 Preparing download links...</p>
-            <div class="downloads" id="downloadBtns" style="display: none;">
-              <button id="audioBtn">⬇ Download Audio</button>
-              <button id="videoBtn">⬇ Download Video</button>
+        const firstResult = searchJson.results[0];
+        const videoUrl = firstResult.url;
+
+        const thumb = firstResult.thumbnail;
+        const title = firstResult.title;
+        const duration = firstResult.duration;
+        const views = firstResult.views.toLocaleString();
+        const author = firstResult.author;
+        const published = firstResult.published;
+
+        resultContainer.innerHTML = `
+          <div class="result">
+            <img class="thumbnail" src="${thumb}" alt="Thumbnail">
+            <div class="info">
+              <h2>${title}</h2>
+              <p><strong>Author:</strong> ${author}</p>
+              <p><strong>Duration:</strong> ${duration}</p>
+              <p><strong>Views:</strong> ${views}</p>
+              <p><strong>Published:</strong> ${published}</p>
+              <p id="loadingStatus" style="color: orange;">🔄 Preparing download links...</p>
+              <div class="downloads" id="downloadBtns" style="display: none;">
+                <button id="audioBtn">⬇ Download Audio</button>
+                <button id="videoBtn">⬇ Download Video</button>
+              </div>
             </div>
           </div>
-        </div>
-      `;
+        `;
 
-      // Fetch audio and video download links in background
-      const ytmp3Url = `${cors}https://apis.davidcyriltech.my.id/download/ytmp3?url=${encodeURIComponent(videoUrl)}`;
-      const ytmp4Url = `${cors}https://apis.davidcyriltech.my.id/download/ytmp4?url=${encodeURIComponent(videoUrl)}`;
+        // Fetch download URLs in background
+        const ytmp3Url = `${cors}https://apis.davidcyriltech.my.id/download/ytmp3?url=${encodeURIComponent(videoUrl)}`;
+        const ytmp4Url = `${cors}https://apis.davidcyriltech.my.id/download/ytmp4?url=${encodeURIComponent(videoUrl)}`;
 
-      const [audioRes, videoRes] = await Promise.all([
-        fetch(ytmp3Url).then(r => r.json()),
-        fetch(ytmp4Url).then(r => r.json())
-      ]);
+        const [audioRes, videoRes] = await Promise.all([
+          fetch(ytmp3Url).then(r => r.json()),
+          fetch(ytmp4Url).then(r => r.json())
+        ]);
 
-      const audioLink = audioRes.result?.download_url;
-      const videoLink = videoRes.result?.download_url;
+        const audioLink = audioRes.result?.download_url;
+        const videoLink = videoRes.result?.download_url;
 
-      const downloadBtns = document.getElementById('downloadBtns');
-      const audioBtn = document.getElementById('audioBtn');
-      const videoBtn = document.getElementById('videoBtn');
-      const loadingStatus = document.getElementById('loadingStatus');
+        const audioBtn = document.getElementById("audioBtn");
+        const videoBtn = document.getElementById("videoBtn");
+        const loadingStatus = document.getElementById("loadingStatus");
+        const downloadBtns = document.getElementById("downloadBtns");
 
-      if (audioLink) {
-        audioBtn.onclick = () => downloadBlobFile(audioLink, 'audio.mp3');
-      } else {
-        audioBtn.disabled = true;
-        audioBtn.textContent = "❌ Audio Failed";
+        if (audioLink) {
+          audioBtn.onclick = () => downloadBlobFile(audioLink, "audio.mp3");
+        } else {
+          audioBtn.disabled = true;
+          audioBtn.textContent = "❌ Audio Failed";
+        }
+
+        if (videoLink) {
+          videoBtn.onclick = () => downloadBlobFile(videoLink, "video.mp4");
+        } else {
+          videoBtn.disabled = true;
+          videoBtn.textContent = "❌ Video Failed";
+        }
+
+        loadingStatus.textContent = "✅ Download ready!";
+        downloadBtns.style.display = "flex";
+
+      } catch (err) {
+        console.error(err);
+        errorMsg.textContent = "❌ " + err.message;
       }
-
-      if (videoLink) {
-        videoBtn.onclick = () => downloadBlobFile(videoLink, 'video.mp4');
-      } else {
-        videoBtn.disabled = true;
-        videoBtn.textContent = "❌ Video Failed";
-      }
-
-      loadingStatus.textContent = "✅ Download ready!";
-      downloadBtns.style.display = 'flex';
-
-    } catch (err) {
-      console.error(err);
-      errorMsg.textContent = "❌ " + err.message;
     }
-  }
-</script>
+  </script>
+
+</body>
+</html>
