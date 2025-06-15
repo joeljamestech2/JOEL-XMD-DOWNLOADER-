@@ -87,13 +87,24 @@
       flex-wrap: wrap;
     }
 
-    .downloads a {
+    .downloads button {
       background: var(--highlight);
       color: #000;
       padding: 0.5rem 1rem;
       border-radius: var(--radius);
-      text-decoration: none;
       font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .downloads button:hover {
+      background: #00bcd4;
+    }
+
+    #videoPlayer {
+      margin-top: 1.5rem;
+      width: 100%;
+      max-width: 720px;
     }
 
     .error {
@@ -110,14 +121,17 @@
   <div class="error" id="errorMsg"></div>
 
   <div id="resultContainer"></div>
+  <div id="videoPlayer"></div>
 
   <script>
     async function searchAndDownload() {
       const query = document.getElementById("searchQuery").value.trim();
       const resultContainer = document.getElementById("resultContainer");
       const errorMsg = document.getElementById("errorMsg");
+      const videoPlayer = document.getElementById("videoPlayer");
       resultContainer.innerHTML = '';
       errorMsg.textContent = '';
+      videoPlayer.innerHTML = '';
 
       if (!query) {
         errorMsg.textContent = "❌ Please enter a search keyword.";
@@ -156,8 +170,8 @@
               <p>${video.info}</p>
               <p><strong>Duration:</strong> ${video.duration} sec</p>
               <div class="downloads">
-                <a href="${video.download.high_quality}" target="_blank" download>⬇ High Quality</a>
-                <a href="${video.download.low_quality}" target="_blank" download>⬇ Low Quality</a>
+                <button onclick="playVideo('${video.download.high_quality}')">▶ Play High Quality</button>
+                <button onclick="playVideo('${video.download.low_quality}')">▶ Play Low Quality</button>
               </div>
             </div>
           </div>
@@ -166,6 +180,17 @@
         console.error(err);
         errorMsg.textContent = "❌ " + err.message;
       }
+    }
+
+    function playVideo(url) {
+      const player = document.getElementById("videoPlayer");
+      player.innerHTML = `
+        <video controls autoplay style="width: 100%; border-radius: var(--radius); box-shadow: 0 0 10px #00d9ff;">
+          <source src="${url}" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      `;
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
   </script>
 
