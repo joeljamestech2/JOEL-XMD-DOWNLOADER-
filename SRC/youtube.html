@@ -13,7 +13,6 @@
       padding: 2rem;
       text-align: center;
     }
-
     input {
       padding: 0.6rem;
       width: 90%;
@@ -24,7 +23,6 @@
       color: #fff;
       font-family: inherit;
     }
-
     button {
       margin-top: 1rem;
       padding: 0.6rem 1.2rem;
@@ -35,7 +33,6 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     .results {
       margin-top: 2rem;
       display: flex;
@@ -43,7 +40,6 @@
       gap: 2rem;
       align-items: center;
     }
-
     .card {
       background: #111;
       border-radius: 12px;
@@ -52,28 +48,23 @@
       box-shadow: 0 0 15px rgba(0, 217, 255, 0.2);
       text-align: left;
     }
-
     .card img {
       width: 100%;
       border-radius: 8px;
     }
-
     .meta {
       margin-top: 0.5rem;
     }
-
     .meta p {
       margin: 4px 0;
       color: #bbb;
     }
-
     .actions {
       margin-top: 1rem;
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
     }
-
     .actions button {
       background: #00d9ff;
       border: none;
@@ -83,15 +74,14 @@
       border-radius: 8px;
       cursor: pointer;
     }
-
     .error {
       margin-top: 1rem;
       color: red;
     }
-
     .loading {
       color: #00d9ff;
       margin-top: 10px;
+      display: none;
     }
   </style>
 </head>
@@ -121,6 +111,7 @@
       try {
         const api = `https://corsproxy.io/?${encodeURIComponent(`https://my-rest-apis-six.vercel.app/yts?query=${query}`)}`;
         const res = await fetch(api);
+        if (!res.ok) throw new Error('Network response was not ok');
         const json = await res.json();
 
         if (!json.results || !json.results.length) {
@@ -144,8 +135,9 @@
               <button onclick="downloadMedia('${video.url}', 'mp3', this)">🎵 MP3</button>
               <button onclick="downloadMedia('${video.url}', 'mp4', this)">📹 MP4</button>
             </div>
-            <div class="loading" style="display:none;">Please wait...</div>
+            <div class="loading">Please wait...</div>
           `;
+          card.querySelector('.loading').style.display = 'none';
           results.appendChild(card);
         });
       } catch (err) {
@@ -155,12 +147,20 @@
     }
 
     async function downloadMedia(url, format, button) {
-      const loading = button.parentElement.nextElementSibling;
+      const card = button.closest('.card');
+      const loading = card.querySelector('.loading');
+      const buttons = card.querySelectorAll('.actions button');
+
       loading.style.display = 'block';
+      buttons.forEach(btn => btn.disabled = true);
+
       try {
-        const apiURL = `https://iamtkm.vercel.app/downloaders/yt${format}?url=${encodeURIComponent(url)}`;
+        // Use corsproxy for tkm api as requested
+        const apiURL = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/yt${format}?url=${encodeURIComponent(url)}`)}`;
         const res = await fetch(apiURL);
+        if (!res.ok) throw new Error('Network response was not ok');
         const json = await res.json();
+
         if (json?.data?.url) {
           window.open(json.data.url, '_blank');
         } else {
@@ -171,8 +171,9 @@
         alert("❌ Download failed.");
       } finally {
         loading.style.display = 'none';
+        buttons.forEach(btn => btn.disabled = false);
       }
     }
   </script>
 </body>
-</html> 
+</html>
