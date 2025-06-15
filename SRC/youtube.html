@@ -85,13 +85,14 @@
       flex-wrap: wrap;
     }
 
-    .downloads a {
+    .downloads button {
       background: var(--highlight);
       color: #000;
       padding: 0.5rem 1rem;
       border-radius: var(--radius);
-      text-decoration: none;
       font-weight: bold;
+      border: none;
+      cursor: pointer;
     }
 
     .error {
@@ -110,6 +111,21 @@
   <div id="resultContainer"></div>
 
   <script>
+    async function downloadBlobFile(url, filename) {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (e) {
+        alert("❌ Failed to download file.");
+      }
+    }
+
     async function searchYouTube() {
       const query = document.getElementById("searchQuery").value.trim();
       const resultContainer = document.getElementById("resultContainer");
@@ -123,8 +139,8 @@
       }
 
       try {
-        // KEEPING ORIGINAL YTS API
-        const searchUrl = `https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
+        const cors = 'https://corsproxy.io/?';
+        const searchUrl = `${cors}https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
         const searchRes = await fetch(searchUrl);
         const searchJson = await searchRes.json();
 
@@ -134,6 +150,7 @@
 
         const firstResult = searchJson.results[0];
         const videoUrl = firstResult.url;
+
         const thumb = firstResult.thumbnail;
         const title = firstResult.title;
         const duration = firstResult.duration;
@@ -141,19 +158,17 @@
         const author = firstResult.author;
         const published = firstResult.published;
 
-        // UPDATED TO TKM API FOR DOWNLOAD
-        const ytmp3Url = `https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodeURIComponent(videoUrl)}`;
-        const ytmp4Url = `https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(videoUrl)}`;
+        const ytmp3Url = `${cors}https://apis.davidcyriltech.my.id/download/ytmp3?url=${encodeURIComponent(videoUrl)}`;
+        const ytmp4Url = `${cors}https://apis.davidcyriltech.my.id/download/ytmp4?url=${encodeURIComponent(videoUrl)}`;
 
-        // Fetch audio
         const audioRes = await fetch(ytmp3Url);
         const audioData = await audioRes.json();
-        const audioLink = audioData?.data?.url || '#';
 
-        // Fetch video
         const videoRes = await fetch(ytmp4Url);
         const videoData = await videoRes.json();
-        const videoLink = videoData?.data?.url || '#';
+
+        const audioLink = audioData.result?.download_url;
+        const videoLink = videoData.result?.download_url;
 
         resultContainer.innerHTML = `
           <div class="result">
@@ -165,8 +180,8 @@
               <p><strong>Views:</strong> ${views}</p>
               <p><strong>Published:</strong> ${published}</p>
               <div class="downloads">
-                <a href="${audioLink}" target="_blank" download>⬇ Download Audio</a>
-                <a href="${videoLink}" target="_blank" download>⬇ Download Video</a>
+                ${audioLink ? `<button onclick="downloadBlobFile('${audioLink}', 'audio.mp3')">⬇ Download Audio</button>` : '<span style="color:red;">❌ No Audio</span>'}
+                ${videoLink ? `<button onclick="downloadBlobFile('${videoLink}', 'video.mp4')">⬇ Download Video</button>` : '<span style="color:red;">❌ No Video</span>'}
               </div>
             </div>
           </div>
