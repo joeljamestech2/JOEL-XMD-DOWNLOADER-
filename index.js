@@ -47,9 +47,9 @@ async function server(req,res) {
         await serve_html(res, 'menu.html');
       }
       break;
-    case '/x':
+    case '/hentai':
       {
-        await serve_html(res, 'twitter.html');
+        await serve_html(res, 'hentai.html');
       }
       break;
     case '/youtube':
