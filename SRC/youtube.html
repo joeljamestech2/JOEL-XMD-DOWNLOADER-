@@ -125,21 +125,6 @@
   <div id="resultContainer"></div>
 
   <script>
-    async function downloadBlobFile(url, filename) {
-      try {
-        const res = await fetch(url);
-        const blob = await res.blob();
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (err) {
-        alert("❌ Download failed.");
-      }
-    }
-
     async function searchYouTube() {
       const query = document.getElementById("searchQuery").value.trim();
       const resultContainer = document.getElementById("resultContainer");
@@ -176,8 +161,8 @@
               <div id="loader" class="spinner"></div>
               <p id="statusText" style="color: orange;">⏳ Fetching download links...</p>
               <div class="downloads" id="downloadButtons" style="display: none;">
-                <button id="audioBtn">⬇ Download MP3</button>
-                <button id="videoBtn">⬇ Download MP4</button>
+                <button id="audioBtn">⬇ Open MP3</button>
+                <button id="videoBtn">⬇ Open MP4</button>
               </div>
             </div>
           </div>
@@ -186,12 +171,12 @@
         const audioApi = `${cors}https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodeURIComponent(videoUrl)}`;
         const videoApi = `${cors}https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(videoUrl)}`;
 
-        // Warning timeouts
         const warn10s = setTimeout(() => {
-          document.getElementById("statusText").textContent = "⏳ Still preparing links...";
+          document.getElementById("statusText").textContent = "⏳ Still preparing download links...";
         }, 10000);
+
         const warn30s = setTimeout(() => {
-          document.getElementById("statusText").textContent = "⌛ May take up to 1 minute. Please wait...";
+          document.getElementById("statusText").textContent = "⌛ Please wait... Downloading may take up to 1 minute.";
         }, 30000);
 
         const [audioRes, videoRes] = await Promise.all([
@@ -209,14 +194,14 @@
         const videoBtn = document.getElementById("videoBtn");
 
         if (audioLink) {
-          audioBtn.onclick = () => downloadBlobFile(audioLink, "audio.mp3");
+          audioBtn.onclick = () => window.open(audioLink, "_blank");
         } else {
           audioBtn.disabled = true;
           audioBtn.textContent = "❌ Audio failed";
         }
 
         if (videoLink) {
-          videoBtn.onclick = () => downloadBlobFile(videoLink, "video.mp4");
+          videoBtn.onclick = () => window.open(videoLink, "_blank");
         } else {
           videoBtn.disabled = true;
           videoBtn.textContent = "❌ Video failed";
