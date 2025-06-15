@@ -104,7 +104,7 @@
       margin: 1rem auto;
       width: 32px;
       height: 32px;
-      border: 4px solid #ff005588;
+      border: 4px solid #ff005544;
       border-top: 4px solid #fff;
       border-radius: 50%;
       animation: spin 1s linear infinite;
@@ -127,16 +127,16 @@
   <script>
     async function downloadBlobFile(url, filename) {
       try {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
+        const res = await fetch(url);
+        const blob = await res.blob();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
         link.download = filename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      } catch {
-        alert("❌ Failed to download.");
+      } catch (err) {
+        alert("❌ Download failed.");
       }
     }
 
@@ -144,92 +144,87 @@
       const query = document.getElementById("searchQuery").value.trim();
       const resultContainer = document.getElementById("resultContainer");
       const errorMsg = document.getElementById("errorMsg");
-      resultContainer.innerHTML = '';
-      errorMsg.textContent = '';
+
+      resultContainer.innerHTML = "";
+      errorMsg.textContent = "";
 
       if (!query) {
-        errorMsg.textContent = "❌ Please enter a search keyword.";
+        errorMsg.textContent = "❌ Please enter a video name.";
         return;
       }
 
       try {
-        const cors = 'https://corsproxy.io/?';
+        const cors = "https://corsproxy.io/?";
         const searchUrl = `${cors}https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
         const searchRes = await fetch(searchUrl);
         const searchJson = await searchRes.json();
 
-        if (searchJson.status !== "success" || !searchJson.results.length) {
-          throw new Error("No YouTube results found.");
-        }
+        if (!searchJson?.results?.length) throw new Error("No YouTube results found.");
 
-        const firstResult = searchJson.results[0];
-        const videoUrl = firstResult.url;
-
-        const thumb = firstResult.thumbnail;
-        const title = firstResult.title;
-        const duration = firstResult.duration;
-        const views = firstResult.views.toLocaleString();
-        const author = firstResult.author;
-        const published = firstResult.published;
+        const video = searchJson.results[0];
+        const videoUrl = video.url;
 
         resultContainer.innerHTML = `
           <div class="result">
-            <img class="thumbnail" src="${thumb}" alt="Thumbnail">
+            <img class="thumbnail" src="${video.thumbnail}" alt="Thumbnail" />
             <div class="info">
-              <h2>${title}</h2>
-              <p><strong>Author:</strong> ${author}</p>
-              <p><strong>Duration:</strong> ${duration}</p>
-              <p><strong>Views:</strong> ${views}</p>
-              <p><strong>Published:</strong> ${published}</p>
+              <h2>${video.title}</h2>
+              <p><strong>Author:</strong> ${video.author}</p>
+              <p><strong>Duration:</strong> ${video.duration}</p>
+              <p><strong>Views:</strong> ${video.views.toLocaleString()}</p>
+              <p><strong>Published:</strong> ${video.published}</p>
               <div id="loader" class="spinner"></div>
-              <p id="loadingStatus" style="color: orange;">⏳ Loading download links...</p>
-              <div class="downloads" id="downloadBtns" style="display: none;">
-                <button id="audioBtn">⬇ Download Audio</button>
-                <button id="videoBtn">⬇ Download Video</button>
+              <p id="statusText" style="color: orange;">⏳ Fetching download links...</p>
+              <div class="downloads" id="downloadButtons" style="display: none;">
+                <button id="audioBtn">⬇ Download MP3</button>
+                <button id="videoBtn">⬇ Download MP4</button>
               </div>
             </div>
           </div>
         `;
 
-        const audioAPI = `${cors}https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodeURIComponent(videoUrl)}`;
-        const videoAPI = `${cors}https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(videoUrl)}`;
+        const audioApi = `${cors}https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodeURIComponent(videoUrl)}`;
+        const videoApi = `${cors}https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(videoUrl)}`;
 
-        const timeout = setTimeout(() => {
-          document.getElementById("loadingStatus").textContent = "⚠️ Server is slow. Please wait or try again later.";
-        }, 10000); // 10 seconds max
+        // Warning timeouts
+        const warn10s = setTimeout(() => {
+          document.getElementById("statusText").textContent = "⏳ Still preparing links...";
+        }, 10000);
+        const warn30s = setTimeout(() => {
+          document.getElementById("statusText").textContent = "⌛ May take up to 1 minute. Please wait...";
+        }, 30000);
 
         const [audioRes, videoRes] = await Promise.all([
-          fetch(audioAPI).then(r => r.json()),
-          fetch(videoAPI).then(r => r.json())
+          fetch(audioApi).then(res => res.json()),
+          fetch(videoApi).then(res => res.json())
         ]);
 
-        clearTimeout(timeout);
-        document.getElementById("loader").style.display = "none";
+        clearTimeout(warn10s);
+        clearTimeout(warn30s);
 
         const audioLink = audioRes?.data?.url;
         const videoLink = videoRes?.data?.url;
 
         const audioBtn = document.getElementById("audioBtn");
         const videoBtn = document.getElementById("videoBtn");
-        const loadingStatus = document.getElementById("loadingStatus");
-        const downloadBtns = document.getElementById("downloadBtns");
 
         if (audioLink) {
           audioBtn.onclick = () => downloadBlobFile(audioLink, "audio.mp3");
         } else {
           audioBtn.disabled = true;
-          audioBtn.textContent = "❌ Audio Failed";
+          audioBtn.textContent = "❌ Audio failed";
         }
 
         if (videoLink) {
           videoBtn.onclick = () => downloadBlobFile(videoLink, "video.mp4");
         } else {
           videoBtn.disabled = true;
-          videoBtn.textContent = "❌ Video Failed";
+          videoBtn.textContent = "❌ Video failed";
         }
 
-        loadingStatus.textContent = "✅ Download links ready!";
-        downloadBtns.style.display = "flex";
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("statusText").textContent = "✅ Ready to download!";
+        document.getElementById("downloadButtons").style.display = "flex";
 
       } catch (err) {
         console.error(err);
