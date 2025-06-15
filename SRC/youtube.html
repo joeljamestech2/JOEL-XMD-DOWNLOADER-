@@ -87,7 +87,7 @@
 </head>
 <body>
 
-  <h1>🎧 Joel XMD YouTube Downloader</h1>
+  <h1>JOEL XMD YT PLAYER</h1>
   <input id="query" placeholder="Search for a YouTube video..." />
   <br />
   <button onclick="searchVideos()">Search</button>
@@ -132,17 +132,17 @@
               <p><strong>Views:</strong> ${video.views.toLocaleString()}</p>
             </div>
             <div class="actions">
-              <button onclick="downloadMedia('${video.url}', 'mp3', this)">🎵 MP3</button>
-              <button onclick="downloadMedia('${video.url}', 'mp4', this)">📹 MP4</button>
+              <button onclick="downloadMedia('${video.url}', 'mp3', this)">Download MP3</button>
+              <button onclick="downloadMedia('${video.url}', 'mp4', this)">Download MP4</button>
             </div>
-            <div class="loading">Please wait...</div>
+            <div class="loading">joel web is loading Please wait...</div>
           `;
           card.querySelector('.loading').style.display = 'none';
           results.appendChild(card);
         });
       } catch (err) {
         console.error(err);
-        error.textContent = '❌ Failed to fetch videos.';
+        error.textContent = 'Failed to fetch videos.';
       }
     }
 
