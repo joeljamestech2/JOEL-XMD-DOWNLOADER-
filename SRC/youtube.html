@@ -115,7 +115,7 @@
       }
 
       try {
-        const api = `https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
+        const api = `https://corsproxy.io/?${encodeURIComponent(`https://my-rest-apis-six.vercel.app/yts?query=${query}`)}`;
         const res = await fetch(api);
         const json = await res.json();
 
@@ -126,8 +126,8 @@
 
         json.results.forEach(video => {
           const encodedURL = encodeURIComponent(video.url);
-          const mp3 = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodedURL}`)}`;
-          const mp4 = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodedURL}`)}`;
+          const mp3 = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/ytmp3?url=${video.url}`)}`;
+          const mp4 = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/ytmp4?url=${video.url}`)}`;
 
           const card = `
             <div class="card">
