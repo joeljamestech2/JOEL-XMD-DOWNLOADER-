@@ -88,6 +88,11 @@
       margin-top: 1rem;
       color: red;
     }
+
+    .loading {
+      color: #00d9ff;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -97,7 +102,6 @@
   <br />
   <button onclick="searchVideos()">Search</button>
   <div class="error" id="error"></div>
-
   <div class="results" id="results"></div>
 
   <script>
@@ -125,33 +129,50 @@
         }
 
         json.results.forEach(video => {
-          const encodedURL = encodeURIComponent(video.url);
-          const mp3 = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/ytmp3?url=${video.url}`)}`;
-          const mp4 = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/ytmp4?url=${video.url}`)}`;
-
-          const card = `
-            <div class="card">
-              <img src="${video.thumbnail}" alt="Thumbnail" />
-              <div class="meta">
-                <h3>${video.title}</h3>
-                <p><strong>Author:</strong> ${video.author}</p>
-                <p><strong>Duration:</strong> ${video.duration}</p>
-                <p><strong>Published:</strong> ${video.published || 'N/A'}</p>
-                <p><strong>Views:</strong> ${video.views.toLocaleString()}</p>
-              </div>
-              <div class="actions">
-                <button onclick="window.open('${mp3}', '_blank')">🎵 Download MP3</button>
-                <button onclick="window.open('${mp4}', '_blank')">📹 Download MP4</button>
-              </div>
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <img src="${video.thumbnail}" alt="Thumbnail" />
+            <div class="meta">
+              <h3>${video.title}</h3>
+              <p><strong>Author:</strong> ${video.author}</p>
+              <p><strong>Duration:</strong> ${video.duration}</p>
+              <p><strong>Published:</strong> ${video.published || 'N/A'}</p>
+              <p><strong>Views:</strong> ${video.views.toLocaleString()}</p>
             </div>
+            <div class="actions">
+              <button onclick="downloadMedia('${video.url}', 'mp3', this)">🎵 MP3</button>
+              <button onclick="downloadMedia('${video.url}', 'mp4', this)">📹 MP4</button>
+            </div>
+            <div class="loading" style="display:none;">Please wait...</div>
           `;
-          results.innerHTML += card;
+          results.appendChild(card);
         });
       } catch (err) {
         console.error(err);
         error.textContent = '❌ Failed to fetch videos.';
       }
     }
+
+    async function downloadMedia(url, format, button) {
+      const loading = button.parentElement.nextElementSibling;
+      loading.style.display = 'block';
+      try {
+        const apiURL = `https://iamtkm.vercel.app/downloaders/yt${format}?url=${encodeURIComponent(url)}`;
+        const res = await fetch(apiURL);
+        const json = await res.json();
+        if (json?.data?.url) {
+          window.open(json.data.url, '_blank');
+        } else {
+          alert("❌ Failed to get download link.");
+        }
+      } catch (e) {
+        console.error(e);
+        alert("❌ Download failed.");
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
   </script>
 </body>
-</html>
+</html> 
