@@ -103,7 +103,7 @@
 <body>
 
   <h1>JOEL XMD YouTube Downloader</h1>
-  <input id="searchQuery" type="text" placeholder="Enter video title (e.g., Another Love)" />
+  <input id="searchQuery" type="text" placeholder="Enter video title (e.g., Unconditionally)" />
   <button onclick="searchYouTube()">Search</button>
   <div class="error" id="errorMsg"></div>
 
@@ -123,7 +123,7 @@
       }
 
       try {
-        // Step 1: Search YouTube using YTS API
+        // KEEPING ORIGINAL YTS API
         const searchUrl = `https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
         const searchRes = await fetch(searchUrl);
         const searchJson = await searchRes.json();
@@ -141,20 +141,19 @@
         const author = firstResult.author;
         const published = firstResult.published;
 
-        // Step 2: Fetch audio and video download links
-        const audioApi = `https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodeURIComponent(videoUrl)}`;
-        const videoApi = `https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(videoUrl)}`;
+        // UPDATED TO TKM API FOR DOWNLOAD
+        const ytmp3Url = `https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodeURIComponent(videoUrl)}`;
+        const ytmp4Url = `https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(videoUrl)}`;
 
-        const [audioRes, videoRes] = await Promise.all([
-          fetch(audioApi),
-          fetch(videoApi)
-        ]);
-
+        // Fetch audio
+        const audioRes = await fetch(ytmp3Url);
         const audioData = await audioRes.json();
-        const videoData = await videoRes.json();
+        const audioLink = audioData?.data?.url || '#';
 
-        const audioLink = audioData.data?.url || '#';
-        const videoLink = videoData.data?.url || '#';
+        // Fetch video
+        const videoRes = await fetch(ytmp4Url);
+        const videoData = await videoRes.json();
+        const videoLink = videoData?.data?.url || '#';
 
         resultContainer.innerHTML = `
           <div class="result">
@@ -166,8 +165,8 @@
               <p><strong>Views:</strong> ${views}</p>
               <p><strong>Published:</strong> ${published}</p>
               <div class="downloads">
-                <a href="${audioLink}" target="_blank" download>🎧 Download Audio</a>
-                <a href="${videoLink}" target="_blank" download>📹 Download Video</a>
+                <a href="${audioLink}" target="_blank" download>⬇ Download Audio</a>
+                <a href="${videoLink}" target="_blank" download>⬇ Download Video</a>
               </div>
             </div>
           </div>
