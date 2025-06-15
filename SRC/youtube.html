@@ -1,222 +1,230 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>JOEL XMD YouTube Downloader</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --bg: #0a0a0a;
-      --text: #ffffff;
-      --highlight: #ff0055;
-      --radius: 12px;
-    }
-
-    body {
-      font-family: 'JetBrains Mono', monospace;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    h1 {
-      font-family: 'Orbitron', sans-serif;
-      color: var(--highlight);
-      text-align: center;
-    }
-
-    input {
-      padding: 0.7rem;
-      width: 100%;
-      max-width: 600px;
-      border-radius: var(--radius);
-      border: none;
-      outline: none;
-      background: #111;
-      color: var(--text);
-      margin-top: 1rem;
-    }
-
-    button {
-      margin-top: 1rem;
-      padding: 0.7rem 1.5rem;
-      background: var(--highlight);
-      color: #000;
-      border: none;
-      border-radius: var(--radius);
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .result {
-      margin-top: 2rem;
-      background: #111;
-      padding: 1.5rem;
-      border-radius: var(--radius);
-      max-width: 720px;
-      width: 100%;
-      box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
-    }
-
-    .thumbnail {
-      width: 100%;
-      border-radius: var(--radius);
-    }
-
-    .info {
-      margin-top: 1rem;
-    }
-
-    .info h2 {
-      color: var(--highlight);
-      margin: 0.5rem 0;
-    }
-
-    .downloads {
-      margin-top: 1rem;
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .downloads button {
-      background: var(--highlight);
-      color: #000;
-      padding: 0.5rem 1rem;
-      border-radius: var(--radius);
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-    }
-
-    .error {
-      color: red;
-      margin-top: 1rem;
-    }
-
-    .spinner {
-      margin: 1rem auto;
-      width: 32px;
-      height: 32px;
-      border: 4px solid #ff005544;
-      border-top: 4px solid #fff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JOEL XMD YouTube Downloader</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --text: #fff;
+    --highlight: #00d9ff;
+    --radius: 12px;
+    --muted: #bbb;
+  }
+  body {
+    margin: 0; padding: 2rem;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  h1 {
+    color: var(--highlight);
+    margin-bottom: 1rem;
+    font-weight: 500;
+    text-align: center;
+  }
+  input[type="text"] {
+    width: 100%;
+    max-width: 600px;
+    padding: 0.7rem;
+    border-radius: var(--radius);
+    border: none;
+    outline: none;
+    background: #111;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  button {
+    margin-top: 1rem;
+    padding: 0.7rem 1.5rem;
+    background: var(--highlight);
+    border: none;
+    border-radius: var(--radius);
+    font-weight: bold;
+    cursor: pointer;
+    color: #000;
+  }
+  #errorMsg {
+    color: red;
+    margin-top: 1rem;
+  }
+  #results {
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .video-card {
+    background: #111;
+    border-radius: var(--radius);
+    padding: 1rem;
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    transition: transform 0.2s ease;
+  }
+  .video-card:hover {
+    transform: scale(1.02);
+  }
+  .thumbnail {
+    width: 120px;
+    height: 67.5px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    flex-shrink: 0;
+  }
+  .info {
+    flex-grow: 1;
+    color: var(--text);
+  }
+  .title {
+    font-weight: 700;
+    margin: 0 0 0.3rem 0;
+    color: var(--highlight);
+  }
+  .details {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .download-btn {
+    background: var(--highlight);
+    color: #000;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    font-weight: bold;
+    text-decoration: none;
+    user-select: none;
+    margin-left: 0.5rem;
+    cursor: pointer;
+  }
+  .btn-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+</style>
 </head>
 <body>
 
-  <h1>JOEL XMD YouTube Downloader</h1>
-  <input id="searchQuery" type="text" placeholder="Enter video title (e.g., Another Love)" />
-  <button onclick="searchYouTube()">Search</button>
-  <div class="error" id="errorMsg"></div>
+<h1>JOEL XMD YouTube Downloader</h1>
+<input type="text" id="searchInput" placeholder="Search YouTube videos..." />
+<button onclick="searchYouTube()">Search</button>
 
-  <div id="resultContainer"></div>
+<div id="errorMsg"></div>
+<div id="results"></div>
 
-  <script>
-    async function searchYouTube() {
-      const query = document.getElementById("searchQuery").value.trim();
-      const resultContainer = document.getElementById("resultContainer");
-      const errorMsg = document.getElementById("errorMsg");
+<script>
+  async function searchYouTube() {
+    const query = document.getElementById('searchInput').value.trim();
+    const resultsDiv = document.getElementById('results');
+    const errorMsg = document.getElementById('errorMsg');
+    resultsDiv.innerHTML = '';
+    errorMsg.textContent = '';
 
-      resultContainer.innerHTML = "";
-      errorMsg.textContent = "";
+    if (!query) {
+      errorMsg.textContent = '❌ Please enter a search term.';
+      return;
+    }
 
-      if (!query) {
-        errorMsg.textContent = "❌ Please enter a video name.";
-        return;
+    try {
+      // Call the API you provided
+      const apiURL = `https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
+      const res = await fetch(apiURL);
+      const data = await res.json();
+
+      if (data.status !== 'success' || !data.results || data.results.length === 0) {
+        throw new Error('No videos found.');
       }
 
-      try {
-        const cors = "https://corsproxy.io/?";
-        const searchUrl = `${cors}https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`;
-        const searchRes = await fetch(searchUrl);
-        const searchJson = await searchRes.json();
+      data.results.forEach(video => {
+        const videoCard = document.createElement('div');
+        videoCard.className = 'video-card';
 
-        if (!searchJson?.results?.length) throw new Error("No YouTube results found.");
-
-        const video = searchJson.results[0];
-        const videoUrl = video.url;
-
-        resultContainer.innerHTML = `
-          <div class="result">
-            <img class="thumbnail" src="${video.thumbnail}" alt="Thumbnail" />
-            <div class="info">
-              <h2>${video.title}</h2>
-              <p><strong>Author:</strong> ${video.author}</p>
-              <p><strong>Duration:</strong> ${video.duration}</p>
-              <p><strong>Views:</strong> ${video.views.toLocaleString()}</p>
-              <p><strong>Published:</strong> ${video.published}</p>
-              <div id="loader" class="spinner"></div>
-              <p id="statusText" style="color: orange;">⏳ Fetching download links...</p>
-              <div class="downloads" id="downloadButtons" style="display: none;">
-                <button id="audioBtn">⬇ Open MP3</button>
-                <button id="videoBtn">⬇ Open MP4</button>
-              </div>
-            </div>
+        videoCard.innerHTML = `
+          <img class="thumbnail" src="${video.thumbnail}" alt="${video.title}" />
+          <div class="info">
+            <div class="title" title="${video.title}">${video.title}</div>
+            <div class="details">Duration: ${video.duration} | Views: ${video.views.toLocaleString()} | Channel: ${video.author}</div>
+          </div>
+          <div class="btn-group">
+            <a href="#" class="download-btn" onclick="downloadAudio(event, '${video.url}')">Download Audio</a>
+            <a href="#" class="download-btn" onclick="downloadVideo(event, '${video.url}')">Download Video</a>
           </div>
         `;
 
-        const audioApi = `${cors}https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodeURIComponent(videoUrl)}`;
-        const videoApi = `${cors}https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(videoUrl)}`;
+        resultsDiv.appendChild(videoCard);
+      });
 
-        const warn10s = setTimeout(() => {
-          document.getElementById("statusText").textContent = "⏳ Still preparing download links...";
-        }, 10000);
-
-        const warn30s = setTimeout(() => {
-          document.getElementById("statusText").textContent = "⌛ Please wait... Downloading may take up to 1 minute.";
-        }, 30000);
-
-        const [audioRes, videoRes] = await Promise.all([
-          fetch(audioApi).then(res => res.json()),
-          fetch(videoApi).then(res => res.json())
-        ]);
-
-        clearTimeout(warn10s);
-        clearTimeout(warn30s);
-
-        const audioLink = audioRes?.data?.url;
-        const videoLink = videoRes?.data?.url;
-
-        const audioBtn = document.getElementById("audioBtn");
-        const videoBtn = document.getElementById("videoBtn");
-
-        if (audioLink) {
-          audioBtn.onclick = () => window.open(audioLink, "_blank");
-        } else {
-          audioBtn.disabled = true;
-          audioBtn.textContent = "❌ Audio failed";
-        }
-
-        if (videoLink) {
-          videoBtn.onclick = () => window.open(videoLink, "_blank");
-        } else {
-          videoBtn.disabled = true;
-          videoBtn.textContent = "❌ Video failed";
-        }
-
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("statusText").textContent = "✅ Ready to download!";
-        document.getElementById("downloadButtons").style.display = "flex";
-
-      } catch (err) {
-        console.error(err);
-        errorMsg.textContent = "❌ " + err.message;
-      }
+    } catch (err) {
+      errorMsg.textContent = '❌ ' + err.message;
     }
-  </script>
+  }
+
+  async function downloadAudio(event, videoUrl) {
+    event.preventDefault();
+    const errorMsg = document.getElementById('errorMsg');
+    errorMsg.textContent = 'Please wait, fetching audio link...';
+
+    try {
+      const apiUrl = `https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodeURIComponent(videoUrl)}`;
+      const res = await fetch(apiUrl);
+      const data = await res.json();
+
+      if (!data.status || !data.data || !data.data.url) {
+        throw new Error('Failed to get audio download link.');
+      }
+
+      const a = document.createElement('a');
+      a.href = data.data.url;
+      a.download = `${data.data.title}.mp3`;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      errorMsg.textContent = '';
+    } catch (err) {
+      errorMsg.textContent = '❌ ' + err.message;
+    }
+  }
+
+  async function downloadVideo(event, videoUrl) {
+    event.preventDefault();
+    const errorMsg = document.getElementById('errorMsg');
+    errorMsg.textContent = 'Please wait, fetching video link...';
+
+    try {
+      const apiUrl = `https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(videoUrl)}`;
+      const res = await fetch(apiUrl);
+      const data = await res.json();
+
+      if (!data.status || !data.data || !data.data.url) {
+        throw new Error('Failed to get video download link.');
+      }
+
+      const a = document.createElement('a');
+      a.href = data.data.url;
+      a.download = `${data.data.title}.mp4`;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      errorMsg.textContent = '';
+    } catch (err) {
+      errorMsg.textContent = '❌ ' + err.message;
+    }
+  }
+</script>
 
 </body>
 </html>
