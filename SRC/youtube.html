@@ -99,12 +99,26 @@
       color: red;
       margin-top: 1rem;
     }
+
+    .spinner {
+      margin: 1rem auto;
+      width: 32px;
+      height: 32px;
+      border: 4px solid #ff005588;
+      border-top: 4px solid #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
 
   <h1>JOEL XMD YouTube Downloader</h1>
-  <input id="searchQuery" type="text" placeholder="Enter video title (e.g., Unconditionally)" />
+  <input id="searchQuery" type="text" placeholder="Enter video title (e.g., Another Love)" />
   <button onclick="searchYouTube()">Search</button>
   <div class="error" id="errorMsg"></div>
 
@@ -167,7 +181,8 @@
               <p><strong>Duration:</strong> ${duration}</p>
               <p><strong>Views:</strong> ${views}</p>
               <p><strong>Published:</strong> ${published}</p>
-              <p id="loadingStatus" style="color: orange;">🔄 Preparing download links...</p>
+              <div id="loader" class="spinner"></div>
+              <p id="loadingStatus" style="color: orange;">⏳ Loading download links...</p>
               <div class="downloads" id="downloadBtns" style="display: none;">
                 <button id="audioBtn">⬇ Download Audio</button>
                 <button id="videoBtn">⬇ Download Video</button>
@@ -176,17 +191,23 @@
           </div>
         `;
 
-        // Fetch download URLs in background
-        const ytmp3Url = `${cors}https://apis.davidcyriltech.my.id/download/ytmp3?url=${encodeURIComponent(videoUrl)}`;
-        const ytmp4Url = `${cors}https://apis.davidcyriltech.my.id/download/ytmp4?url=${encodeURIComponent(videoUrl)}`;
+        const audioAPI = `${cors}https://iamtkm.vercel.app/downloaders/ytmp3?url=${encodeURIComponent(videoUrl)}`;
+        const videoAPI = `${cors}https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(videoUrl)}`;
+
+        const timeout = setTimeout(() => {
+          document.getElementById("loadingStatus").textContent = "⚠️ Server is slow. Please wait or try again later.";
+        }, 10000); // 10 seconds max
 
         const [audioRes, videoRes] = await Promise.all([
-          fetch(ytmp3Url).then(r => r.json()),
-          fetch(ytmp4Url).then(r => r.json())
+          fetch(audioAPI).then(r => r.json()),
+          fetch(videoAPI).then(r => r.json())
         ]);
 
-        const audioLink = audioRes.result?.download_url;
-        const videoLink = videoRes.result?.download_url;
+        clearTimeout(timeout);
+        document.getElementById("loader").style.display = "none";
+
+        const audioLink = audioRes?.data?.url;
+        const videoLink = videoRes?.data?.url;
 
         const audioBtn = document.getElementById("audioBtn");
         const videoBtn = document.getElementById("videoBtn");
@@ -207,7 +228,7 @@
           videoBtn.textContent = "❌ Video Failed";
         }
 
-        loadingStatus.textContent = "✅ Download ready!";
+        loadingStatus.textContent = "✅ Download links ready!";
         downloadBtns.style.display = "flex";
 
       } catch (err) {
