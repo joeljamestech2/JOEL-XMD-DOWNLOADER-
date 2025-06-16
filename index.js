@@ -41,9 +41,9 @@ console.log(`INFO: responce 200 OK ${file_name}`);
 async function server(req,res) {
 console.log(`\n\nINFO: request ${req.method} ${req.url}`);
 switch (req.url) {
-case '/':
+case '/report':
 {
-await serve_html(res, 'menu.html');
+await serve_html(res, 'report.html');
 }
 break;
 case '/404':
@@ -81,7 +81,7 @@ case '/insta':
 await serve_html(res, 'insta.html');
 }
 break;
-case '/main':
+case '/':
 {
 await serve_html(res, 'main.html');
 }
