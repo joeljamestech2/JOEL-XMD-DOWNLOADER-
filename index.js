@@ -1,174 +1,118 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const os = require("os");
 
-const pages = path.resolve(path.join(__dirname,'SRC'));
-
-const os = require('os');
-
-
+const pages = path.resolve(path.join(__dirname, 'SRC'));
+const visitorsPath = path.join(pages, 'visitors.txt');
 let port = parseInt(process.env.PORT) || 8000;
 
-//console.log(pages);
-
-function serr(res, err){
-  res.writeHead(500, {'Content-Type': 'text/plain'});
-  res.end('server error \nan error occored in the server');
-  console.log(`ERROR: an error occored generating responce: ${err}`);
+function serr(res, err) {
+  res.writeHead(500, { 'Content-Type': 'text/plain' });
+  res.end('Server Error\nAn error occurred on the server.');
+  console.error(`ERROR: ${err}`);
 }
 
 async function serve_html(res, file_name) {
   fs.readFile(path.join(pages, file_name), (err, data) => {
-        if (err) {
-          serr(res, err);
-        } else {
-          res.writeHead(200, {'Content-Type': 'text/html'});
-          res.end(data);
-          console.log(`INFO: responce 200 OK ${file_name}`);
-        }
-      });
+    if (err) return serr(res, err);
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(data);
+    console.log(`INFO: 200 OK - ${file_name}`);
+  });
 }
+
 async function serve_img(res, file_name) {
-    fs.readFile(path.join(pages, file_name), (err, data) => {
-        if (err) {
-          serr(res, err);
-        } else {
-          res.writeHead(200, {'Content-Type': `image/${path.extname(file_name).split('.')[1]}`});
-          res.end(data);
-          console.log(`INFO: responce 200 OK favicon.ico`);
-        }
-      });
-      }
-async function server(req,res) {
-  console.log(`\n\nINFO: request ${req.method} ${req.url}`);
-  switch (req.url) {
-    case '/': 
-      {
-        await serve_html(res, 'menu.html');
-      }
-      break;
-    case '/hentai':
-      {
-        await serve_html(res, 'hentai.html');
-      }
-      break;
-    case '/youtube':
-      {
-        await serve_html(res, 'youtube.html');
-      }
-    break;
-    case '/facebook':
-      {
-        await serve_html(res, 'facebok.html');
-      }
-      break;
-    case '/instagram':
-      {
-        await serve_html(res, 'instagram.html');
-      }
-      break;
-      case '/xnxx':
-      {
-        await serve_html(res, 'xnx.html');
-      }
-      break;
-      case '/app':
-      {
-        await serve_html(res, 'app.html');
-      }
-      break;
-      case '/info':
-      {
-        await serve_html(res, 'info.html');
-      }
-      break;
-      case '/xvideo':
-      {
-        await serve_html(res, 'xvideo.html');
-      }
-      break;
-      case '/instagram':
-      {
-        await serve_html(res, 'instagram.html');
-      }
-      break;
-    case '/tiktok':
-      {
-        await serve_html(res, 'tiktok.html');
-      }
-      break;
-    //favicon
-    case '/favicon.ico':
-      {
-        await serve_img(res, 'favicon.ico');
-      }
-      break;
-    case '/favicon-32x32.png':
-      {
-        await serve_img(res, 'favicon-32x32.png');
-      }
-      break;
-    case '/favicon-16x16.png':
-      {
-        await serve_img(res, 'favicon-16x16.png');
-      }
-      break;
-    case '/apple-touch-icon.png':
-      {
-        await serve_img(res, 'apple-touch-icon.png');
-      }
-      break;
-    case '/android-chrome-512x512.png':
-      {
-        await serve_img(res, 'android-chrome-512x512.png');
-      }
-      break;
-    case '/android-chrome-192x192.png':
-      {
-        await serve_img(res, 'android-chrome-192x192.png');
-      }
-      break;
-    case '/site.webmanifest':
-      {
-        fs.readFile(path.join(pages, 'site.webmanifest'), (err, data) => {
-          if (err) {
-            serr(err);
-          } else {
-            res.writeHead(200, {'Content-Type': 'text/plain'});
-            res.end(data);
-          }
-        });
-      }
-      break;
-    default:
-    {
-      fs.readFile(path.join(pages, '404.html'), (err, data) => {
-        if (err) {
-          serr(res, err);
-        } else {
-          console.error(`${req.url} NOT FOUND`);
-          res.writeHead(404, {'Content-Type': 'text/html'});
-          res.end(data);
-          console.log(`INFO: responce 404 NOT_FOUND 404.html`);
-        }
-        });
-    }
+  fs.readFile(path.join(pages, file_name), (err, data) => {
+    if (err) return serr(res, err);
+    const ext = path.extname(file_name).slice(1);
+    res.writeHead(200, { 'Content-Type': `image/${ext}` });
+    res.end(data);
+    console.log(`INFO: 200 OK - ${file_name}`);
+  });
+}
+
+const htmlRoutes = {
+  "/": "menu.html",
+  "/404": "404.html",
+  "/app": "app.html",
+  "/capcut": "capcut.html",
+  "/facebok": "facebok.html",
+  "/googledrive": "googledrive.html",
+  "/hentai": "hentai.html",
+  "/insta": "insta.html",
+  "/main": "main.html",
+  "/mediafile": "mediafile.html",
+  "/menu": "menu.html",
+  "/snapchat": "snapchat.html",
+  "/support": "support.html",
+  "/tiktok": "tiktok.html",
+  "/twitter": "twitter.html",
+  "/xnx": "xnx.html",
+  "/xvideo": "xvideo.html",
+  "/youtube": "youtube.html"
+};
+
+async function server(req, res) {
+  const url = req.url.toLowerCase();
+  console.log(`\nINFO: Request - ${req.method} ${url}`);
+
+  // Global visitor counter (file-based)
+  if (!fs.existsSync(visitorsPath)) fs.writeFileSync(visitorsPath, "0");
+  let count = parseInt(fs.readFileSync(visitorsPath, "utf8")) || 0;
+  count++;
+  fs.writeFileSync(visitorsPath, count.toString());
+
+  // API to return global count
+  if (url === "/api/visitors") {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ count }));
+    return;
   }
+
+  // Serve known HTML pages
+  if (htmlRoutes[url]) {
+    return await serve_html(res, htmlRoutes[url]);
+  }
+
+  // Serve image
+  if (url === "/owner.jpg") {
+    return await serve_img(res, "owner.jpg");
+  }
+
+  // Manifest
+  if (url === "/site.webmanifest") {
+    fs.readFile(path.join(pages, 'site.webmanifest'), (err, data) => {
+      if (err) return serr(res, err);
+      res.writeHead(200, { 'Content-Type': 'application/manifest+json' });
+      res.end(data);
+      console.log(`INFO: 200 OK - site.webmanifest`);
+    });
+    return;
+  }
+
+  // Default: 404
+  fs.readFile(path.join(pages, '404.html'), (err, data) => {
+    if (err) return serr(res, err);
+    res.writeHead(404, { 'Content-Type': 'text/html' });
+    res.end(data);
+    console.error(`WARN: 404 Not Found - ${url}`);
+  });
 }
 
 if (isNaN(port)) {
-  console.warn(`WARNING: invalid port ${port}`);
-  port = 8000
+  console.warn(`WARNING: Invalid port specified, falling back to 8000`);
+  port = 8000;
 }
 
 const s = http.createServer(server);
 s.listen(port, () => {
-  console.log(`INFO: server started at https://${os.hostname()}`);
-  console.log(`INFO: server listening at port ${port}`);
-  console.log(`INFO: view website at https://${os.hostname()}:${port}`);
+  const host = os.hostname();
+  console.log(`\n✅ Server running at: http://${host}:${port}`);
+  console.log(`📂 Serving from: ${pages}`);
 });
 
 process.on('SIGINT', () => {
-  console.log('INFO: server shutting down...');
-  s.close(() => process.exit(1));
-})
+  console.log('\n🛑 Server shutting down...');
+  s.close(() => process.exit(0));
+});
