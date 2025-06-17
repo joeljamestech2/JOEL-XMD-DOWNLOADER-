@@ -101,9 +101,9 @@ case '/snapchat':
 await serve_html(res, 'snapchat.html');
 }
 break;
-case '/support':
+case '/info':
 {
-await serve_html(res, 'support.html');
+await serve_html(res, 'info.html');
 }
 break;
 case '/tiktok':
@@ -183,7 +183,7 @@ case '/xnx.jpg':
 case '/xvideo.jpg':
 case '/youtube.jpg':
 {
-await serve_img(res, path.join('ICON', req.url.slice(1)));
+await serve_img(res, path.join('IMAGES', req.url.slice(1)));
 }
 break;
 
