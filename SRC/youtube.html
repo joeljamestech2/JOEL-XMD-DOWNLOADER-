@@ -2,120 +2,154 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Joel XMD YouTube Downloader</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LORD JOEL PROJECTS</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
   <style>
     body {
+      margin: 0;
       font-family: 'JetBrains Mono', monospace;
-      background: #0a0a0a;
+      background: #000;
       color: #fff;
-      padding: 2rem;
+      padding: 1rem;
       text-align: center;
     }
-    input {
-      padding: 0.6rem;
-      width: 90%;
+
+    h1 {
+      font-size: 1.4rem;
+      color: #00d9ff;
+      margin: 0 0 1rem;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #111;
+      border-radius: 8px;
+      padding: 5px;
       max-width: 500px;
-      border-radius: 10px;
+      margin: 0 auto;
+    }
+
+    input {
+      flex: 1;
+      padding: 0.5rem;
       border: none;
       background: #111;
       color: #fff;
-      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
     }
+
     button {
-      margin-top: 1rem;
-      padding: 0.6rem 1.2rem;
-      background: #00d9ff;
-      color: #000;
-      font-weight: bold;
+      background: none;
       border: none;
-      border-radius: 8px;
       cursor: pointer;
     }
+
+    button img {
+      width: 20px;
+    }
+
     .results {
-      margin-top: 2rem;
+      margin-top: 1rem;
       display: flex;
       flex-direction: column;
-      gap: 2rem;
-      align-items: center;
+      gap: 1rem;
     }
+
     .card {
       background: #111;
-      border-radius: 12px;
-      padding: 1rem;
-      max-width: 600px;
-      box-shadow: 0 0 15px rgba(0, 217, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.5rem;
       text-align: left;
+      font-size: 0.85rem;
     }
+
     .card img {
       width: 100%;
-      border-radius: 8px;
+      border-radius: 4px;
     }
-    .meta {
-      margin-top: 0.5rem;
-    }
+
     .meta p {
-      margin: 4px 0;
-      color: #bbb;
+      margin: 3px 0;
+      color: #ccc;
     }
+
     .actions {
-      margin-top: 1rem;
+      margin-top: 0.5rem;
       display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
+      gap: 0.5rem;
     }
+
     .actions button {
       background: #00d9ff;
-      border: none;
-      padding: 0.5rem 1rem;
       color: #000;
+      padding: 0.3rem 0.6rem;
       font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
+      font-size: 0.75rem;
+      border-radius: 6px;
     }
+
     .error {
-      margin-top: 1rem;
       color: red;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
     }
+
     .loading {
+      font-size: 0.8rem;
       color: #00d9ff;
-      margin-top: 10px;
-      display: none;
     }
   </style>
 </head>
 <body>
 
-  <h1>JOEL XMD YT PLAYER</h1>
-  <input id="query" placeholder="Search for a YouTube video..." />
-  <br />
-  <button onclick="searchVideos()">Search</button>
+  <h1>JOEL XMD YT DOWNLOADER</h1>
+
+  <div class="search-box">
+    <input id="query" placeholder="Search YouTube..." />
+    <button onclick="searchVideos()">
+      <img src="https://img.icons8.com/ios-filled/50/00d9ff/search--v1.png" alt="Search" />
+    </button>
+  </div>
+
   <div class="error" id="error"></div>
   <div class="results" id="results"></div>
 
   <script>
-    async function searchVideos() {
-      const query = document.getElementById("query").value.trim();
-      const results = document.getElementById("results");
-      const error = document.getElementById("error");
+    const input = document.getElementById("query");
+    const results = document.getElementById("results");
+    const error = document.getElementById("error");
 
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") searchVideos();
+    });
+
+    async function searchVideos() {
+      const query = input.value.trim();
       results.innerHTML = '';
       error.textContent = '';
 
       if (!query) {
-        error.textContent = '❌ Please enter a search term.';
+        error.textContent = "❌ Enter search term.";
         return;
       }
+
+      const loading = document.createElement("div");
+      loading.className = "loading";
+      loading.textContent = "Searching...";
+      results.appendChild(loading);
 
       try {
         const api = `https://corsproxy.io/?${encodeURIComponent(`https://my-rest-apis-six.vercel.app/yts?query=${query}`)}`;
         const res = await fetch(api);
-        if (!res.ok) throw new Error('Network response was not ok');
         const json = await res.json();
+        results.innerHTML = '';
 
         if (!json.results || !json.results.length) {
-          error.textContent = 'No results found. try again';
+          error.textContent = "No results found.";
           return;
         }
 
@@ -123,55 +157,47 @@
           const card = document.createElement("div");
           card.className = "card";
           card.innerHTML = `
-            <img src="${video.thumbnail}" alt="Thumbnail" />
+            <img src="${video.thumbnail}" alt="${video.title}">
             <div class="meta">
-              <h3>${video.title}</h3>
-              <p><strong>Author:</strong> ${video.author}</p>
-              <p><strong>Duration:</strong> ${video.duration}</p>
-              <p><strong>Published:</strong> ${video.published || 'N/A'}</p>
-              <p><strong>Views:</strong> ${video.views.toLocaleString()}</p>
+              <p><strong>${video.title}</strong></p>
+              <p>${video.author}</p>
+              <p>${video.duration}</p>
             </div>
             <div class="actions">
-              <button onclick="downloadMedia('${video.url}', 'mp3', this)">AUDIO DOWNLOAD</button>
-              <button onclick="downloadMedia('${video.url}', 'mp4', this)">VIDEO DOWNLOAD</button>
+              <button onclick="downloadMedia('${video.url}', 'mp3', this)">Audio</button>
+              <button onclick="downloadMedia('${video.url}', 'mp4', this)">Video</button>
             </div>
-            <div class="loading">joel web is loading Please wait...</div>
           `;
-          card.querySelector('.loading').style.display = 'none';
           results.appendChild(card);
         });
-      } catch (err) {
-        console.error(err);
-        error.textContent = 'Failed to fetch videos.';
+      } catch (e) {
+        console.error(e);
+        error.textContent = "Failed to fetch videos.";
       }
     }
 
     async function downloadMedia(url, format, button) {
       const card = button.closest('.card');
-      const loading = card.querySelector('.loading');
-      const buttons = card.querySelectorAll('.actions button');
-
-      loading.style.display = 'block';
-      buttons.forEach(btn => btn.disabled = true);
+      const loading = document.createElement("div");
+      loading.className = "loading";
+      loading.textContent = "Preparing download...";
+      card.appendChild(loading);
+      button.disabled = true;
 
       try {
-        // Use corsproxy for tkm api as requested
         const apiURL = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/yt${format}?url=${encodeURIComponent(url)}`)}`;
         const res = await fetch(apiURL);
-        if (!res.ok) throw new Error('Network response was not ok');
         const json = await res.json();
-
         if (json?.data?.url) {
-          window.open(json.data.url, '_blank');
+          window.open(json.data.url, '_blank', 'noopener,noreferrer');
         } else {
-          alert("Failed to get download link.try again");
+          alert("Failed to get download link.");
         }
-      } catch (e) {
-        console.error(e);
+      } catch {
         alert("Download failed.");
       } finally {
-        loading.style.display = 'none';
-        buttons.forEach(btn => btn.disabled = false);
+        loading.remove();
+        button.disabled = false;
       }
     }
   </script>
