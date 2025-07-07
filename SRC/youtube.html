@@ -115,7 +115,7 @@
         const json = await res.json();
 
         if (!json.results || !json.results.length) {
-          error.textContent = '❌ No results found.';
+          error.textContent = 'No results found. try again';
           return;
         }
 
@@ -132,8 +132,8 @@
               <p><strong>Views:</strong> ${video.views.toLocaleString()}</p>
             </div>
             <div class="actions">
-              <button onclick="downloadMedia('${video.url}', 'mp3', this)">Download MP3</button>
-              <button onclick="downloadMedia('${video.url}', 'mp4', this)">Download MP4</button>
+              <button onclick="downloadMedia('${video.url}', 'mp3', this)">AUDIO DOWNLOAD</button>
+              <button onclick="downloadMedia('${video.url}', 'mp4', this)">VIDEO DOWNLOAD</button>
             </div>
             <div class="loading">joel web is loading Please wait...</div>
           `;
@@ -164,11 +164,11 @@
         if (json?.data?.url) {
           window.open(json.data.url, '_blank');
         } else {
-          alert("❌ Failed to get download link.");
+          alert("Failed to get download link.try again");
         }
       } catch (e) {
         console.error(e);
-        alert("❌ Download failed.");
+        alert("Download failed.");
       } finally {
         loading.style.display = 'none';
         buttons.forEach(btn => btn.disabled = false);
