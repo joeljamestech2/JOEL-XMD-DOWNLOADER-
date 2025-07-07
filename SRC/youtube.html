@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>youtube downloader by lord joel </title>
+  <title></title>youtube downloader by lord joel</title>
   <link rel="icon" href="https://raw.githubusercontent.com/joeljamestech2/JOEL-XMD-DOWNLOADER-/refs/heads/main/IMAGES/images (1).png" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
   <style>
@@ -131,7 +131,7 @@
   <h1>JOEL XMD YT DOWNLOADER</h1>
 
   <div class="search-box">
-    <input id="query" placeholder="Search YouTube..." />
+    <input id="query" placeholder="Search YouTube or paste URL..." />
     <button onclick="searchVideos()" aria-label="Search">
       <img src="https://raw.githubusercontent.com/joeljamestech2/JOEL-XMD-DOWNLOADER-/refs/heads/main/IMAGES/images.png" alt="Search" />
     </button>
@@ -155,23 +155,25 @@
       error.textContent = '';
 
       if (!query) {
-        error.textContent = "❌ Enter search term.";
+        error.textContent = "❌ Enter search term or YouTube URL.";
         return;
       }
 
       const loading = document.createElement("div");
       loading.className = "loading";
-      loading.textContent = "Searching...";
+      loading.textContent = "Processing...";
       results.appendChild(loading);
 
+      const isYouTubeURL = /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/.+$/.test(query);
+
       try {
-        const api = `https://corsproxy.io/?${encodeURIComponent(`https://my-rest-apis-six.vercel.app/yts?query=${query}`)}`;
+        const api = `https://corsproxy.io/?${encodeURIComponent(`https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`)}`;
         const res = await fetch(api);
         const json = await res.json();
         results.innerHTML = '';
 
         if (!json.results || !json.results.length) {
-          error.textContent = "No results found.";
+          error.textContent = "❌ No results found.";
           return;
         }
 
@@ -195,34 +197,7 @@
         });
       } catch (e) {
         console.error(e);
-        error.textContent = "Failed to fetch videos.";
-      }
-    }
-
-    async function playInline(url, btn) {
-      const card = btn.closest('.card');
-      const playerDiv = card.querySelector('.video-player');
-      playerDiv.innerHTML = '<div class="loading">Loading video...</div>';
-
-      try {
-        const apiURL = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(url)}`)}`;
-        const res = await fetch(apiURL);
-        const json = await res.json();
-        const videoUrl = json?.data?.url;
-
-        if (videoUrl) {
-          playerDiv.innerHTML = `
-            <video controls autoplay playsinline>
-              <source src="${videoUrl}" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          `;
-        } else {
-          playerDiv.innerHTML = "<div class='loading'>❌ Video unavailable.</div>";
-        }
-      } catch (err) {
-        console.error(err);
-        playerDiv.innerHTML = "<div class='loading'>❌ Error loading video.</div>";
+        error.textContent = "❌ Failed to fetch videos.";
       }
     }
 
@@ -241,10 +216,10 @@
         if (json?.data?.url) {
           window.open(json.data.url, '_blank', 'noopener,noreferrer');
         } else {
-          alert("Failed to get download link.");
+          alert("❌ Failed to get download link.");
         }
       } catch {
-        alert("Download failed.");
+        alert("❌ Download failed.");
       } finally {
         loading.remove();
         button.disabled = false;
