@@ -4,119 +4,133 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>JOEL XMD XVideos Downloader</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/joeljamestech2/JOEL-XMD-DOWNLOADER-/refs/heads/main/IMAGES/images%20(1).png" />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #0a0a0a;
       --text: #fff;
       --highlight: #00d9ff;
+      --muted: #bbb;
       --radius: 12px;
-      --muted: #bbbbbb;
     }
+
     body {
-      margin: 0; padding: 2rem;
+      margin: 0;
+      padding: 2rem 1rem;
       font-family: 'JetBrains Mono', monospace;
-      background: var(--bg);
+      background-color: var(--bg);
       color: var(--text);
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
     }
+
     h1 {
       font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
       color: var(--highlight);
-      margin-bottom: 1rem;
-      text-align: center;
+      margin-bottom: 1.5rem;
     }
+
     input[type="text"] {
       width: 100%;
       max-width: 600px;
-      padding: 0.7rem;
-      border-radius: var(--radius);
-      border: none;
-      outline: none;
+      padding: 0.75rem 1rem;
       background: #111;
       color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
-    }
-    button {
-      margin-top: 1rem;
-      padding: 0.7rem 1.5rem;
-      background: var(--highlight);
       border: none;
       border-radius: var(--radius);
+      outline: none;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      padding: 0.7rem 1.5rem;
+      background-color: var(--highlight);
+      border: none;
+      border-radius: var(--radius);
+      color: #000;
       font-weight: bold;
       cursor: pointer;
-      color: #000;
+      transition: background 0.2s ease;
     }
+
+    button:hover {
+      background-color: #00c2e6;
+    }
+
     .error {
       color: red;
       margin-top: 1rem;
     }
+
     #results {
       margin-top: 2rem;
+      display: grid;
       width: 100%;
       max-width: 720px;
-      display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 1rem;
     }
+
     .video-card {
       background: #111;
       border-radius: var(--radius);
-      box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+      box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+      overflow: hidden;
       cursor: pointer;
-      display: flex;
-      flex-direction: column;
       transition: transform 0.2s ease;
     }
+
     .video-card:hover {
       transform: scale(1.03);
     }
+
     .thumbnail {
       width: 100%;
-      border-top-left-radius: var(--radius);
-      border-top-right-radius: var(--radius);
-      aspect-ratio: 16 / 9;
+      height: auto;
+      aspect-ratio: 16/9;
       object-fit: cover;
     }
+
     .video-info {
-      padding: 0.7rem;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      padding: 0.75rem;
     }
+
     .title {
-      font-weight: 700;
-      font-size: 0.9rem;
+      font-weight: bold;
+      font-size: 0.95rem;
       color: var(--highlight);
-      margin: 0 0 0.5rem 0;
-      line-height: 1.2;
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
+
     .details {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--muted);
     }
+
     #videoPlayer {
       margin-top: 2rem;
       width: 100%;
       max-width: 720px;
     }
+
     video {
       width: 100%;
       border-radius: var(--radius);
-      box-shadow: 0 0 10px var(--highlight);
+      box-shadow: 0 0 12px var(--highlight);
     }
   </style>
 </head>
 <body>
 
   <h1>JOEL XMD XVideos Downloader</h1>
+
   <input type="text" id="searchInput" placeholder="Search videos (e.g. big tits)" />
   <button onclick="searchVideos()">Search</button>
   <div class="error" id="errorMsg"></div>
@@ -127,61 +141,63 @@
   <script>
     async function searchVideos() {
       const query = document.getElementById('searchInput').value.trim();
-      const resultsDiv = document.getElementById('results');
-      const errorMsg = document.getElementById('errorMsg');
-      const videoPlayer = document.getElementById('videoPlayer');
+      const results = document.getElementById('results');
+      const error = document.getElementById('errorMsg');
+      const player = document.getElementById('videoPlayer');
 
-      resultsDiv.innerHTML = '';
-      errorMsg.textContent = '';
-      videoPlayer.innerHTML = '';
+      results.innerHTML = '';
+      player.innerHTML = '';
+      error.textContent = '';
 
       if (!query) {
-        errorMsg.textContent = '❌ Please enter a search keyword.';
+        error.textContent = '❌ Please enter a search keyword.';
         return;
       }
 
       try {
-        const response = await fetch(`https://apis.davidcyriltech.my.id/search/xvideo?text=${encodeURIComponent(query)}`);
-        const data = await response.json();
+        const apiUrl = `https://corsproxy.io/?${encodeURIComponent(`https://apis.davidcyriltech.my.id/search/xvideo?text=${encodeURIComponent(query)}`)}`;
+        const res = await fetch(apiUrl);
+        const data = await res.json();
 
         if (!data.success || !data.result || data.result.length === 0) {
-          throw new Error('No videos found for your query.');
+          throw new Error('No videos found.');
         }
 
         data.result.forEach(video => {
           const card = document.createElement('div');
           card.className = 'video-card';
           card.innerHTML = `
-            <img src="${video.thumbnail}" alt="${video.title}" class="thumbnail" />
+            <img src="${video.thumbnail}" alt="${video.title}" class="thumbnail">
             <div class="video-info">
               <div class="title" title="${video.title}">${video.title}</div>
               <div class="details">Duration: ${video.duration} | Quality: ${video.quality}</div>
             </div>
           `;
           card.onclick = () => fetchAndPlayVideo(video.url);
-          resultsDiv.appendChild(card);
+          results.appendChild(card);
         });
-      } catch (error) {
-        errorMsg.textContent = '❌ ' + error.message;
-        console.error(error);
+      } catch (err) {
+        error.textContent = '❌ ' + err.message;
+        console.error(err);
       }
     }
 
     async function fetchAndPlayVideo(videoUrl) {
-      const videoPlayer = document.getElementById('videoPlayer');
-      const errorMsg = document.getElementById('errorMsg');
-      errorMsg.textContent = '';
-      videoPlayer.innerHTML = '';
+      const player = document.getElementById('videoPlayer');
+      const error = document.getElementById('errorMsg');
+      player.innerHTML = '';
+      error.textContent = '';
 
       try {
-        const response = await fetch(`https://apis.davidcyriltech.my.id/xvideo?url=${encodeURIComponent(videoUrl)}`);
-        const data = await response.json();
+        const apiUrl = `https://corsproxy.io/?${encodeURIComponent(`https://apis.davidcyriltech.my.id/xvideo?url=${encodeURIComponent(videoUrl)}`)}`;
+        const res = await fetch(apiUrl);
+        const data = await res.json();
 
         if (!data.success || !data.download_url) {
-          throw new Error('Failed to get download link.');
+          throw new Error('❌ Unable to get download URL.');
         }
 
-        videoPlayer.innerHTML = `
+        player.innerHTML = `
           <video controls autoplay>
             <source src="${data.download_url}" type="video/mp4" />
             Your browser does not support the video tag.
@@ -189,10 +205,10 @@
           <p style="color: var(--highlight); margin-top: 0.5rem;">${data.title}</p>
         `;
 
-        window.scrollTo({ top: videoPlayer.offsetTop, behavior: 'smooth' });
-      } catch (error) {
-        errorMsg.textContent = '❌ ' + error.message;
-        console.error(error);
+        window.scrollTo({ top: player.offsetTop, behavior: 'smooth' });
+      } catch (err) {
+        error.textContent = '❌ ' + err.message;
+        console.error(err);
       }
     }
   </script>
