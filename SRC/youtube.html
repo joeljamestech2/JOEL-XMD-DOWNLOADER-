@@ -30,7 +30,7 @@
       padding: 5px 10px;
       max-width: 500px;
       margin: 0 auto;
-      height: 42px;
+      height: 100%;
     }
 
     input {
@@ -209,10 +209,14 @@
         const res = await fetch(apiURL);
         const json = await res.json();
 
-        if (json?.data?.url) {
+        console.log("TKM API Response:", json);
+
+        const videoUrl = json?.data?.url || json?.url;
+
+        if (videoUrl) {
           playerDiv.innerHTML = `
-            <video controls autoplay>
-              <source src="${json.data.url}" type="video/mp4">
+            <video controls autoplay playsinline>
+              <source src="${videoUrl}" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           `;
@@ -220,8 +224,8 @@
           playerDiv.innerHTML = "<div class='loading'>❌ Could not load video.</div>";
         }
       } catch (err) {
-        console.error(err);
-        playerDiv.innerHTML = "<div class='loading'>❌ Error loading video.</div>";
+        console.error("Play Now Error:", err);
+        playerDiv.innerHTML = "<div class='loading'>❌ Error loading video. Check console.</div>";
       }
     }
 
