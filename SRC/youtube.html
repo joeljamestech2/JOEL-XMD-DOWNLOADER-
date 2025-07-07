@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Joel XMD YT Downloader</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/joeljamestech2/JOEL-XMD-DOWNLOADER-/refs/heads/main/IMAGES/images(1).png" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
   <style>
     body {
@@ -54,7 +55,7 @@
     }
 
     button img {
-      height: 120%;
+      height: 100%;
       aspect-ratio: 1/1;
     }
 
@@ -186,8 +187,8 @@
             </div>
             <div class="actions">
               <button onclick="playInline('${video.url}', this)">Play Now</button>
-              <button onclick="downloadMedia('${video.url}', 'mp3', this)">Audio</button>
-              <button onclick="downloadMedia('${video.url}', 'mp4', this)">Video</button>
+              <button onclick="downloadMedia('${video.url}', 'mp3', this)">download audio</button>
+              <button onclick="downloadMedia('${video.url}', 'mp4', this)">download video</button>
             </div>
             <div class="video-player"></div>
           `;
@@ -202,16 +203,13 @@
     async function playInline(url, btn) {
       const card = btn.closest('.card');
       const playerDiv = card.querySelector('.video-player');
-      playerDiv.innerHTML = '<div class="loading">Loading player...</div>';
+      playerDiv.innerHTML = '<div class="loading">Loading video...</div>';
 
       try {
         const apiURL = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/ytmp4?url=${encodeURIComponent(url)}`)}`;
         const res = await fetch(apiURL);
         const json = await res.json();
-
-        console.log("TKM API Response:", json);
-
-        const videoUrl = json?.data?.url || json?.url;
+        const videoUrl = json?.data?.url;
 
         if (videoUrl) {
           playerDiv.innerHTML = `
@@ -221,11 +219,11 @@
             </video>
           `;
         } else {
-          playerDiv.innerHTML = "<div class='loading'>❌ Could not load video.</div>";
+          playerDiv.innerHTML = "<div class='loading'>❌ Video unavailable.</div>";
         }
       } catch (err) {
-        console.error("Play Now Error:", err);
-        playerDiv.innerHTML = "<div class='loading'>❌ Error loading video. Check console.</div>";
+        console.error(err);
+        playerDiv.innerHTML = "<div class='loading'>❌ Error loading video.</div>";
       }
     }
 
