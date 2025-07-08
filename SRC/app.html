@@ -3,120 +3,249 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>APK Downloader - Joel XMD</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet"/>
+  <title>& apk downloader by joel xmd..@</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/joeljamestech2/JOEL-XMD-DOWNLOADER-/refs/heads/main/IMAGES/images 20(1).png" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
     body {
+      margin: 0;
       font-family: 'JetBrains Mono', monospace;
-      background-color: #0f0f0f;
-      color: #ffffff;
+      background: #000;
+      color: #fff;
+      padding: 1rem;
       text-align: center;
-      padding: 40px 20px;
     }
 
     h1 {
-      font-family: 'Orbitron', sans-serif;
-      color: #00ff88;
-      margin-bottom: 20px;
+      font-size: 1.4rem;
+      color: #00d9ff;
+      margin-bottom: 1rem;
     }
 
-    input, button {
-      padding: 12px;
-      margin: 10px;
-      font-size: 16px;
-      border-radius: 10px;
+    .search-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #111;
+      border-radius: 25px;
+      padding: 8px 12px;
+      max-width: 600px;
+      margin: 0 auto;
+      height: 38px;
+    }
+
+    .material-icons {
+      font-size: 20px;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    .search-input {
+      flex: 1;
       border: none;
+      background: transparent;
+      outline: none;
+      font-size: 0.95rem;
+      color: #fff;
     }
 
-    input {
-      width: 100%;
-      max-width: 400px;
-    }
-
-    button {
-      background-color: #00ff88;
-      color: #000;
+    .icon-button {
+      background-color: #222;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 8px;
       cursor: pointer;
     }
 
-    #loading {
-      color: #ffaa00;
-      margin-top: 10px;
+    .icon-button:hover {
+      background-color: #333;
     }
 
-    .result {
-      margin-top: 30px;
-      background: #1b1b1b;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
+    .results {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
     }
 
-    .result img {
-      width: 100px;
-      height: 100px;
-      border-radius: 20px;
-      margin-bottom: 10px;
-    }
-
-    .apk-name {
-      font-size: 20px;
-      font-weight: bold;
-      color: #00ffff;
-      margin-bottom: 15px;
-    }
-
-    .btns a {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 20px;
+    .card {
       background: #111;
-      color: #00ff88;
-      text-decoration: none;
-      border: 1px solid #00ff88;
       border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .card img {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+    }
+
+    .meta {
+      flex: 1;
+      text-align: left;
+    }
+
+    .meta p {
+      margin: 3px 0;
+      color: #ccc;
+    }
+
+    .meta p strong {
+      color: #fff;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .actions button {
+      padding: 0.35rem 0.8rem;
+      font-size: 0.75rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .download-apk {
+      background: #00d9ff;
+      color: #000;
+    }
+
+    .play-store {
+      background: #3ddc84;
+      color: #000;
+    }
+
+    .error {
+      color: red;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .loading {
+      font-size: 0.8rem;
+      color: #00d9ff;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
-  <h1>Joel XMD APK Downloader</h1>
-  <input type="text" id="query" placeholder="Search for an APK (e.g., WhatsApp)" />
-  <button onclick="searchApk()">Search</button>
-  <div id="loading"></div>
-  <div class="result" id="result"></div>
+
+  <h1>JOEL XMD APK DOWNLOADER</h1>
+
+  <div class="search-container">
+    <input class="search-input" id="query" placeholder="Search Play Store APK..." />
+    <div class="icon-button" onclick="searchAPK()" title="Search">
+      <span class="material-icons">search</span>
+    </div>
+  </div>
+
+  <div class="error" id="error"></div>
+  <div class="results" id="results"></div>
 
   <script>
-    async function searchApk() {
-      const query = document.getElementById("query").value.trim();
-      const resultDiv = document.getElementById("result");
-      const loading = document.getElementById("loading");
+    const input = document.getElementById("query");
+    const results = document.getElementById("results");
+    const error = document.getElementById("error");
 
-      resultDiv.innerHTML = '';
-      loading.textContent = 'Please wait... Searching APK';
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") searchAPK();
+    });
+
+    async function searchAPK() {
+      const query = input.value.trim();
+      results.innerHTML = '';
+      error.textContent = '';
+
+      if (!query) {
+        error.textContent = "❌ Please enter an app name.";
+        return;
+      }
+
+      const loading = document.createElement("div");
+      loading.className = "loading";
+      loading.textContent = "Searching...";
+      results.appendChild(loading);
 
       try {
-        const res = await fetch(`https://apis.davidcyriltech.my.id/download/apk?text=${encodeURIComponent(query)}`);
-        const data = await res.json();
+        const api = `https://corsproxy.io/?${encodeURIComponent(`https://www.dark-yasiya-api.site/search/playstory?text=${encodeURIComponent(query)}`)}`;
+        const res = await fetch(api);
+        const json = await res.json();
+        results.innerHTML = '';
 
-        if (data.success && data.download_link) {
-          resultDiv.innerHTML = `
-            <img src="${data.thumbnail}" alt="App Icon" />
-            <div class="apk-name">${data.apk_name}</div>
-            <div class="btns">
-              <a href="${data.download_link}" target="_blank">Download APK</a>
+        if (!json.result || !json.result.length) {
+          error.textContent = "❌ No results found.";
+          return;
+        }
+
+        json.result.forEach(app => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <img src="${app.image}" alt="${app.nama}" />
+            <div class="meta">
+              <p><strong>${app.nama}</strong></p>
+              <p>Developer: <a href="${app.link_dev}" target="_blank" style="color:#00d9ff;">${app.developer}</a></p>
+              <p>Rating: ${app.rate2} ⭐</p>
+            </div>
+            <div class="actions">
+              <button class="download-apk" onclick="downloadAPK('${app.nama}', this)">
+                <span class="material-icons">file_download</span> Download APK
+              </button>
+              <button class="play-store" onclick="window.open('${app.url}', '_blank')">
+                <span class="material-icons">shop</span> Play Store
+              </button>
             </div>
           `;
+          results.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        error.textContent = "❌ Failed to fetch data.";
+      }
+    }
+
+    async function downloadAPK(appName, button) {
+      const card = button.closest('.card');
+      const loader = document.createElement("div");
+      loader.className = "loading";
+      loader.textContent = "Fetching download link...";
+      card.appendChild(loader);
+      button.disabled = true;
+
+      try {
+        const api = `https://corsproxy.io/?${encodeURIComponent(`https://apis.davidcyriltech.my.id/download/apk?text=${encodeURIComponent(appName)}`)}`;
+        const res = await fetch(api);
+        const json = await res.json();
+
+        if (json?.success && json?.download_link) {
+          window.open(json.download_link, '_blank');
         } else {
-          resultDiv.innerHTML = "<p>No APK found for your query.</p>";
+          alert("❌ Download link not found.");
         }
-      } catch (error) {
-        resultDiv.innerHTML = "<p>Error occurred. Try again later.</p>";
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error downloading APK.");
       } finally {
-        loading.textContent = '';
+        loader.remove();
+        button.disabled = false;
       }
     }
   </script>
 </body>
-  </html>
+</html>
