@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>youtube downloader by lord joel</title>
+  <title>joel xmd tech info 2025</title>
   <link rel="icon" href="https://raw.githubusercontent.com/joeljamestech2/JOEL-XMD-DOWNLOADER-/refs/heads/main/IMAGES/images (1).png" />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
     body {
       margin: 0;
@@ -22,45 +23,55 @@
       margin-bottom: 1rem;
     }
 
-    .search-box {
+    .search-container {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #111;
-      border-radius: 8px;
-      padding: 5px 10px;
-      max-width: 500px;
+      background-color: #111;
+      border-radius: 25px;
+      padding: 8px 12px;
+      max-width: 600px;
       margin: 0 auto;
-      height: 42px;
+      height: 48px;
     }
 
-    input {
-      flex: 1;
-      padding: 0.5rem 0.6rem;
-      border: none;
-      background: #111;
-      color: #fff;
-      font-size: 0.9rem;
-      outline: none;
-      height: 100%;
+    .material-icons {
+      font-size: 22px;
     }
 
-    button {
-      background: none;
-      border: none;
+    .back-arrow {
+      color: #ccc;
       cursor: pointer;
-      height: 100%;
+      margin-right: 10px;
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 0.95rem;
+      color: #fff;
+    }
+
+    .icon-button {
+      background-color: #222;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
+      justify-content: center;
+      margin-left: 8px;
+      cursor: pointer;
     }
 
-    button img {
-      height: 100%;
-      aspect-ratio: 1/1;
+    .icon-button:hover {
+      background-color: #333;
     }
 
     .results {
-      margin-top: 1rem;
+      margin-top: 1.5rem;
       display: flex;
       flex-direction: column;
       gap: 1rem;
@@ -99,6 +110,7 @@
       font-weight: bold;
       font-size: 0.75rem;
       border-radius: 6px;
+      cursor: pointer;
     }
 
     .error {
@@ -130,11 +142,15 @@
 
   <h1>JOEL XMD YT DOWNLOADER</h1>
 
-  <div class="search-box">
-    <input id="query" placeholder="Search YouTube or paste URL..." />
-    <button onclick="searchVideos()" aria-label="Search">
-      <img src="https://raw.githubusercontent.com/joeljamestech2/JOEL-XMD-DOWNLOADER-/refs/heads/main/IMAGES/images.png" alt="Search" />
-    </button>
+  <div class="search-container">
+    <span class="material-icons back-arrow">arrow_back</span>
+    <input class="search-input" id="query" placeholder="Search YouTube or paste URL..." />
+    <div class="icon-button" onclick="searchVideos()" title="Search">
+      <span class="material-icons">search</span>
+    </div>
+    <div class="icon-button" title="Voice (not active)">
+      <span class="material-icons">mic</span>
+    </div>
   </div>
 
   <div class="error" id="error"></div>
@@ -214,12 +230,12 @@
         const res = await fetch(apiURL);
         const json = await res.json();
         if (json?.data?.url) {
-          window.open(json.data.url, '_blank', 'noopener,noreferrer');
+          window.location.href = json.data.url; // Open in same tab
         } else {
-          alert("❌ Failed to get download link.");
+          alert("Failed to get download link.");
         }
       } catch {
-        alert("❌ Download failed.");
+        alert("Download failed.");
       } finally {
         loading.remove();
         button.disabled = false;
