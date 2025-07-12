@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title> youtube downloader website by joel xmd tech info...@ </title>
-  <link rel="icon" href="https://raw.githubusercontent.com/joeljamestech2/JOEL-XMD-DOWNLOADER-/refs/heads/main/IMAGES/images (1).png" />
+  <meta name="theme-color" content="#000000" />
+  <title>JOEL XMD YT Downloader</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/joeljamestech2/JOEL-XMD-DOWNLOADER-/refs/heads/main/IMAGES/images%20(1).png" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -64,6 +65,7 @@
       justify-content: center;
       margin-left: 8px;
       cursor: pointer;
+      touch-action: manipulation;
     }
 
     .icon-button:hover {
@@ -111,6 +113,7 @@
       font-size: 0.75rem;
       border-radius: 6px;
       cursor: pointer;
+      touch-action: manipulation;
     }
 
     .error {
@@ -143,7 +146,7 @@
   <h1>JOEL XMD YT DOWNLOADER</h1>
 
   <div class="search-container">
-    <span class="material-icons back-arrow" onclick="window.open `https://joel-xmd-downloader.vercel.app/youtube`" >arrow_back</span>
+    <span class="material-icons back-arrow" onclick="window.location.href='https://joel-xmd-downloader.vercel.app/youtube'">arrow_back</span>
     <input class="search-input" id="query" placeholder="Enter search term or YouTube url" />
     <div class="icon-button" onclick="searchVideos()" title="Search">
       <span class="material-icons">search</span>
@@ -171,7 +174,7 @@
       error.textContent = '';
 
       if (!query) {
-        error.textContent = "❌ Enter search term or YouTube url.";
+        error.textContent = "❌ Enter search term or YouTube URL.";
         return;
       }
 
@@ -179,8 +182,6 @@
       loading.className = "loading";
       loading.textContent = "Processing...";
       results.appendChild(loading);
-
-      const isYouTubeURL = /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/.+$/.test(query);
 
       try {
         const api = `https://corsproxy.io/?${encodeURIComponent(`https://my-rest-apis-six.vercel.app/yts?query=${encodeURIComponent(query)}`)}`;
@@ -211,8 +212,8 @@
           `;
           results.appendChild(card);
         });
-      } catch (e) {
-        console.error(e);
+      } catch (err) {
+        console.error("Error fetching videos:", err);
         error.textContent = "❌ Failed to fetch videos.";
       }
     }
@@ -230,11 +231,12 @@
         const res = await fetch(apiURL);
         const json = await res.json();
         if (json?.data?.url) {
-          window.location.href = json.data.url; // Open in same tab
+          window.location.href = json.data.url;
         } else {
           alert("Failed to get download link.");
         }
-      } catch {
+      } catch (err) {
+        console.error("Download failed:", err);
         alert("Download failed.");
       } finally {
         loading.remove();
