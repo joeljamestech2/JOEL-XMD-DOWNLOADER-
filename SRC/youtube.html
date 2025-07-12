@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
-  <title>JOEL XMD YT Downloader</title>
-  <link rel="icon" href="https://raw.githubusercontent.com/joeljamestech2/JOEL-XMD-DOWNLOADER-/refs/heads/main/IMAGES/images%20(1).png" />
+  <title>youtube downloader website by joel xmd tech info...</title>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/joeljamestech2/JOEL-XMD-DOWNLOADER-/refs/heads/main/IMAGES/images%20(1).png" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
@@ -65,7 +64,6 @@
       justify-content: center;
       margin-left: 8px;
       cursor: pointer;
-      touch-action: manipulation;
     }
 
     .icon-button:hover {
@@ -113,11 +111,13 @@
       font-size: 0.75rem;
       border-radius: 6px;
       cursor: pointer;
-      touch-action: manipulation;
     }
 
     .error {
-      color: red;
+      color: #ff5555;
+      background: #220000;
+      border-radius: 6px;
+      padding: 0.4rem;
       margin-top: 0.5rem;
       font-size: 0.85rem;
     }
@@ -168,13 +168,15 @@
       if (e.key === "Enter") searchVideos();
     });
 
+    window.onload = () => input.focus();
+
     async function searchVideos() {
       const query = input.value.trim();
       results.innerHTML = '';
       error.textContent = '';
 
       if (!query) {
-        error.textContent = "❌ Enter search term or YouTube URL.";
+        error.textContent = "❌ Enter search term or YouTube url.";
         return;
       }
 
@@ -205,15 +207,15 @@
               <p>${video.duration}</p>
             </div>
             <div class="actions">
-              <button onclick="downloadMedia('${video.url}', 'mp3', this)">download audio</button>
-              <button onclick="downloadMedia('${video.url}', 'mp4', this)">download video</button>
+              <button onclick="downloadMedia('${video.url}', 'mp3', this)">Download MP3</button>
+              <button onclick="downloadMedia('${video.url}', 'mp4', this)">Download MP4</button>
             </div>
             <div class="video-player"></div>
           `;
           results.appendChild(card);
         });
-      } catch (err) {
-        console.error("Error fetching videos:", err);
+      } catch (e) {
+        console.error(e);
         error.textContent = "❌ Failed to fetch videos.";
       }
     }
@@ -230,13 +232,20 @@
         const apiURL = `https://corsproxy.io/?${encodeURIComponent(`https://iamtkm.vercel.app/downloaders/yt${format}?url=${encodeURIComponent(url)}`)}`;
         const res = await fetch(apiURL);
         const json = await res.json();
+
         if (json?.data?.url) {
-          window.location.href = json.data.url;
+          // Use hidden <a> to trigger download/open inside WebView without opening external Chrome
+          const a = document.createElement("a");
+          a.href = json.data.url;
+          a.download = ""; // Suggest download
+          a.style.display = "none";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
         } else {
           alert("Failed to get download link.");
         }
-      } catch (err) {
-        console.error("Download failed:", err);
+      } catch {
         alert("Download failed.");
       } finally {
         loading.remove();
